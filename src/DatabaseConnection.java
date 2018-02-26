@@ -13,13 +13,13 @@ public class DatabaseConnection {
         try {
             
             //Establishing the driver and connection
-            Class.forName("org.postgresql.Driver");
-            String url = "jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk:5432/mumbai";
-            Properties props = new Properties();
-            props.setProperty("user", "mumbai");
-            props.setProperty("password", "s7e5n1p3tj");
-            props.setProperty("ssl", "false");
-            Connection con = DriverManager.getConnection(url, props);
+            Class.forName("org.postgresql.Driver"); 
+            String url = "jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk:5432/mumbai"; // Creating the url, name of the driver:link to the database:name of DB:port
+            Properties props = new Properties(); // Properties, to make the connection easier to understand
+            props.setProperty("user", "mumbai"); // name of the user
+            props.setProperty("password", "s7e5n1p3tj"); // password
+            props.setProperty("ssl", "false"); // boolean ssl set as false
+            Connection con = DriverManager.getConnection(url, props); 
 
             //Creating a statement - statement object operates all queries
             Statement stmt = con.createStatement();
@@ -36,6 +36,7 @@ public class DatabaseConnection {
             ResultSet rs = stmt.executeQuery("SELECT * FROM users;");
 
             //going through the result set - every next set is a row from database
+            // returning each row of the query
             while (rs.next()) {
                 System.out.println(rs.getInt(1) + " " + rs.getString(2) + " " + rs.getString(3) + " " + rs.getString(4));
             }
@@ -54,6 +55,6 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
 
-
+    // a 'finally' has to be added
     }
 }
