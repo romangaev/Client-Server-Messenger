@@ -53,7 +53,7 @@ public class DatabaseConnection {
             System.err.println("Driver could not be registered");
             e.printStackTrace();
         }
-
+    // need to add finally
 
     }
 }
