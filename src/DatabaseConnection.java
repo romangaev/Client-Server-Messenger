@@ -11,7 +11,6 @@ import java.util.Properties;
 public class DatabaseConnection {
     public static void main(String[] args) {
         try {
-            
             //Establishing the driver and connection
             Class.forName("org.postgresql.Driver");
             String url = "jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk:5432/mumbai";
@@ -56,4 +55,5 @@ public class DatabaseConnection {
 
 
     }
+
 }
