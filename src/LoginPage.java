@@ -1,98 +1,156 @@
+package messengerProject;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.beans.Statement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 /**
- * @author Ioana Avirvarei
- * GUI for login, register and chat page
+ * @author Ioana Avirvarei GUI for login, register and chat page
  *
  */
 public class LoginPage {
 
 	LoginPage LoginPage;
 	JFrame chat = new JFrame("Chat"); // chat
-	Font titleFont = new Font("Script MT Bold", Font.BOLD, 30); // font for the title
+	Font titleFont = new Font("Script MT Bold", Font.BOLD, 35); // font for the title
 	Font textingFont = new Font("French Script MT", Font.ITALIC, 30); // font for the SEND button
 
 	JButton send;
+	JButton loginButton;
+	JButton registerButton;
 	JTextField messageBox;
 	JTextArea chatBox;
 	JTextField userText;
+	JPasswordField passwordText;
 	JFrame window; // window
 	JFrame register; // frame for register page
-
+	GridBagConstraints gbc;
+            
 	public static void main(String[] args) {
+		// try {
+		// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
 		LoginPage LoginPage = new LoginPage();
-		LoginPage.loginPage();
+		LoginPage.setupLoginPage();
+
 	}
 
-	public void loginPage() {
+
+	public void setupLoginPage() {
+
 		chat.setVisible(false);
 		window = new JFrame("Login/Register");
-
 		window.setSize(450, 730); // size of the window
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		JPanel prePanel = new JPanel();
+		JPanel prePanel = new JPanel(new GridBagLayout());
 		window.add(prePanel);
+		prePanel.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(4, 4, 4, 4);
 
-		userText = new JTextField();
+		JLabel welcomeLabel = new JLabel("<html>Welcome to<br> Messenger!</html>", SwingConstants.CENTER);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		prePanel.setLayout(null);
-		JLabel welcomeLabel = new JLabel("<html>Welcome to<br> Messenger!</html>");
-		welcomeLabel.setBounds(150, 100, 600, 250); // coordinates for the title
-		prePanel.add(welcomeLabel, BorderLayout.NORTH);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.ipady = 40; // increase height of the title
+		gbc.weightx = 0.5;
+		gbc.gridwidth = 4;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+
+		prePanel.add(welcomeLabel, gbc);
+
 		welcomeLabel.setFont(titleFont); // set the font
 		welcomeLabel.setForeground(Color.GRAY); // set the color
 
-		prePanel.add(userText);
 		// for user
-		JLabel userLabel = new JLabel("User"); // chooseusernameLabel
-		userLabel.setBounds(80, 300, 80, 25); // coordinates for the user field
-		prePanel.add(userLabel);
+		JLabel userLabel = new JLabel("User", SwingConstants.CENTER);
+		gbc.ipady = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.gridwidth = 2;
+		gbc.weightx = 0.5;
+		gbc.insets = new Insets(10, 80, 0, 80);
+
+		prePanel.add(userLabel, gbc);
 
 		userText = new JTextField();
-		userText.setBounds(130, 300, 250, 25); // coordinates for the user field
-		prePanel.add(userText);
+		gbc.ipady = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 0.5;
+		gbc.insets = new Insets(10, 80, 0, 80);
+
+		prePanel.add(userText, gbc);
 
 		// for password
-		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setBounds(50, 340, 80, 25);
-		prePanel.add(passwordLabel);
+		JLabel passwordLabel = new JLabel("Password", SwingConstants.CENTER);
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.weightx = 0.5;
+		prePanel.add(passwordLabel, gbc);
 
 		JPasswordField passwordText = new JPasswordField(20);
-		passwordText.setBounds(130, 335, 250, 25); // coordinates for the password text
-		prePanel.add(passwordText);
+		gbc.ipady = 0;
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 0.5;
+		prePanel.add(passwordText, gbc);
 
 		// login button
 		JButton loginButton = new JButton("Login");
-		loginButton.setBounds(170, 400, 100, 35); // coordinates for the login button
-		prePanel.add(loginButton);
+		gbc.ipady = 0;
+		// gbc.weighty = 1;
+		gbc.insets = new Insets(100, 150, 0, 150);
+		gbc.gridx = 1;
+		gbc.gridwidth = 2;
+		gbc.gridy = 4;
+		prePanel.add(loginButton, gbc);
 
 		// register button
 		JButton registerButton = new JButton("Register");
-		registerButton.setBounds(170, 450, 100, 35); // coordinates for the register button
-		prePanel.add(registerButton);
+		// gbc.ipady = 1;
+		// gbc.weighty = 1;
+		gbc.insets = new Insets(10, 150, 0, 150);
+		gbc.gridx = 1;
+		gbc.gridwidth = 2;
+		gbc.gridy = 5;
+
+		prePanel.add(registerButton, gbc);
+
 		window.setVisible(true);
 
 		loginButton.addActionListener(new loginButtonListener());
@@ -100,13 +158,13 @@ public class LoginPage {
 
 	}
 
-	public void registerPage() {
+	public void setupRegisterPage() {
 		// window settings
 		window.setVisible(false); // set visibility false for the first login page
 		chat.setVisible(false); // set visibility false for the chat
 		register = new JFrame("Register "); // create a new window
 
-		register.setSize(450, 730); // size of the register
+		// register.setSize(450, 730); // size of the register
 		register.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel registerPanel = new JPanel();
 		register.add(registerPanel);
@@ -114,7 +172,7 @@ public class LoginPage {
 		// for title
 		registerPanel.setLayout(null);
 		JLabel registerLabel = new JLabel("<html>Enter your registration<br>details: </html>");
-		registerLabel.setBounds(100, 100, 600, 250); // coordinates for the title
+		// registerLabel.setBounds(100, 100, 600, 250); // coordinates for the title
 		registerPanel.add(registerLabel, BorderLayout.NORTH);
 		registerLabel.setFont(titleFont); // set the font
 		registerLabel.setForeground(Color.GRAY); // set the color
@@ -161,7 +219,7 @@ public class LoginPage {
 		registerPanel.add(surnameLabel);
 
 		JTextField surnameText = new JTextField(20);
-		surnameText.setBounds(260, 420, 120, 25); 
+		surnameText.setBounds(260, 420, 120, 25);
 		registerPanel.add(surnameText);
 
 		// for date of birth
@@ -170,7 +228,7 @@ public class LoginPage {
 		registerPanel.add(dateLabel);
 
 		JTextField dateText = new JTextField(20);
-		dateText.setBounds(130, 460, 120, 25); 
+		dateText.setBounds(130, 460, 120, 25);
 		registerPanel.add(dateText);
 
 		// for gender
@@ -188,7 +246,7 @@ public class LoginPage {
 		registerPanel.add(locationLabel);
 
 		JTextField locationText = new JTextField(20);
-		locationText.setBounds(130, 500, 120, 25); 
+		locationText.setBounds(130, 500, 120, 25);
 		registerPanel.add(locationText);
 
 		// for status
@@ -211,7 +269,8 @@ public class LoginPage {
 
 	}
 
-	public void chatPage() {
+	public void setupChatPage() {
+		
 		chat.setVisible(true);
 		chat.setSize(500, 750);
 
@@ -259,6 +318,8 @@ public class LoginPage {
 
 	}
 
+	String username;
+	
 	class sendButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if (messageBox.getText().length() < 1) {
@@ -273,16 +334,16 @@ public class LoginPage {
 		}
 	}
 
-	String username;
 
 	class loginButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			username = userText.getText();
+//			password = new String(passwordText.getPassword());
 			if (username.length() < 1) {
 				System.out.println("No!");
 			} else {
 				window.setVisible(false);
-				chatPage();
+				setupChatPage();
 			}
 		}
 
@@ -291,7 +352,7 @@ public class LoginPage {
 	class registerButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			window.setVisible(false);
-			registerPage();
+			setupRegisterPage();
 		}
 
 	}
@@ -302,7 +363,7 @@ public class LoginPage {
 			if (username.length() < 1) {
 				System.out.println("No!");
 			} else {
-				loginPage();
+				setupLoginPage();
 				register.setVisible(false);
 				chatBox.setVisible(false);
 			}
