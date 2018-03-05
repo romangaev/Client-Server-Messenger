@@ -16,7 +16,7 @@ public class ServerModel {
         //creating a server socket
         ServerSocket serverSocket=null;
         try {
-            serverSocket = new ServerSocket(5000);
+            serverSocket = new ServerSocket(6000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,6 +46,9 @@ public class ServerModel {
                 newClient.start();
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
             try {
                 serverSocket.close();
             }

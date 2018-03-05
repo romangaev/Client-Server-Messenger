@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 
@@ -23,7 +24,7 @@ public class ClientModel {
 
     public boolean connect() {
         try {
-            serverSocket = new Socket("localhost", 5000);
+            serverSocket = new Socket(serverName, serverPort);
             out = new PrintWriter(serverSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
             return true;
@@ -33,11 +34,24 @@ public class ClientModel {
         }
     }
 
+    public boolean register(String login, String password, String legalName) {
+        String cmd = Protocol.REGISTER + " " + login + " " + password + " " + legalName;
+        out.println(cmd);
+        try {
+            if (Integer.valueOf(in.readLine())==Protocol.TRUE) {
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
     public boolean login(String username, String password) {
         String cmd = Protocol.LOGIN + " " + username + " " + password;
         out.println(cmd);
         try {
-            if (Boolean.valueOf(in.readLine())) {
+            if (Integer.valueOf(in.readLine())==Protocol.TRUE){
                 startReadingThread();
                 return true;
             }
@@ -97,5 +111,6 @@ public class ClientModel {
         String login = tokens[1];
 
     }
+
 
 }

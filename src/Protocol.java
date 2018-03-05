@@ -8,26 +8,46 @@
  */
 public class Protocol {
     public static final int LOGIN=0;
-
-
-
-
-
-
-
-
+    public  static final int REGISTER=1;
+    public  static final int EXIT=101;
+    public static final int TRUE=1;
+    public static final int FALSE=0;
 
     NewServerThread thread;
+    /*
     private static final int AUTH = 0;
     private static final int PROFILE = 1;
 
     private int state = AUTH;
+    **/
 
     public Protocol(NewServerThread thread) {
         this.thread = thread;
     }
 
-    public String processInput(String input) {
+    public int processInput(String input) {
+        String [] tokens= input.split(" ");
+        int command = Integer.parseInt(tokens[0]);
+
+        switch (command) {
+            case LOGIN:
+                if(thread.login(tokens[1],tokens[2])) {
+                    return 1;}
+                else return 0;
+
+            case  REGISTER:
+                if(thread.register(tokens[1],tokens[2], tokens[3])) return 1;
+                else return 0;
+
+                default:
+                    return 0;
+
+
+        }
+
+
+    }
+        /*
         int command = Integer.parseInt(input);
         String generatedOutput;
 
@@ -70,5 +90,5 @@ public class Protocol {
         return generatedOutput;
     }
 
-
+**/
 }

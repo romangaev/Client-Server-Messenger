@@ -32,14 +32,14 @@ public class NewServerThread extends Thread {
         try {
             //creating protocol for communication
             Protocol protocol = new Protocol(this);
-            String serverSays = "Greetings, motherfuckers! Welcome to server! 0 to sign in. 1 to sign up. 2 to get a surprise. 3 to quit the program:";
+
             //communication with the client using the protocol
-            out.println(serverSays);
-            String userSays;
-            while ((userSays = in.readLine()) != null) {
-                serverSays = protocol.processInput(userSays);
-                out.println(serverSays);
-                if (serverSays.equals("See you in a bit!"))
+            String userRequest;
+            int serverResponse;
+            while ((userRequest = in.readLine()) != null) {
+                serverResponse = protocol.processInput(userRequest);
+                out.println(serverResponse);
+                if (serverResponse==Protocol.EXIT)
                     break;
             }
 
@@ -47,19 +47,42 @@ public class NewServerThread extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        finally {
+            try {
+                client.close();
+                in.close();
+                out.close();
+            }
+            catch (IOException io) {
+                System.err.println("Couldn't close server socket" +
+                        io.getMessage());
+            }
+        }
     }
 
-    //sign in of client
-    public boolean signIn() {
-        String username;
-        String password;
-
+    public boolean register(String username, String password, String legalname) {
         try {
-            out.println("Username:");
-            username = in.readLine();
-            out.println("Password:");
-            password = in.readLine();
+            statement.executeQuery("SELECT\n" +
+                    "    table_schema || '.' || table_name\n" +
+                    "FROM\n" +
+                    "    information_schema.tables\n" +
+                    "WHERE\n" +
+                    "    table_type = 'BASE TABLE'\n" +
+                    "AND\n" +
+                    "    table_schema NOT IN ('pg_catalog', 'information_schema');");
+            ResultSet rs = statement.executeQuery("SELECT MAX(id) FROM users");
+            rs.next();
+            int nextId= rs.getInt(1)+1;
+            statement.executeUpdate("INSERT INTO users VALUES ('"+nextId+"','"+username+"','"+password+"','"+legalname+"')");
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
+    public boolean login(String username, String password) {
+        try {
             statement.executeQuery("SELECT\n" +
                     "    table_schema || '.' || table_name\n" +
                     "FROM\n" +
@@ -76,14 +99,8 @@ public class NewServerThread extends Thread {
                     return true;
                 }
             }
-
-            return false;
-        } catch (IOException e) {
-            System.out.println("Something is wrong with IO!");
-            e.printStackTrace();
             return false;
         } catch (SQLException e) {
-            System.out.println("Something is wrong with SQL query!");
             e.printStackTrace();
             return false;
         }
@@ -97,4 +114,6 @@ public class NewServerThread extends Thread {
     public User getCurrentUser() {
         return currentUser;
     }
+
+
 }
