@@ -9,28 +9,93 @@ import java.net.Socket;
  * May the force be with you.
  */
 public class ClientModel {
+    private String serverName;
+    private int serverPort;
+    private Socket serverSocket;
+    private PrintWriter out;
+    private BufferedReader in;
 
-    public static void main(String[] args){
+    public ClientModel(String serverName, int serverPort) {
+        this.serverName = serverName;
+        this.serverPort = serverPort;
 
+    }
+
+    public boolean connect() {
         try {
-            //connecting to local server and creating output and input writing and reading tools
-            Socket serverSocket = new Socket("localhost", 5000);
-            PrintWriter out = new PrintWriter(serverSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader( new InputStreamReader(serverSocket.getInputStream()));
-            BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+            serverSocket = new Socket("localhost", 5000);
+            out = new PrintWriter(serverSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-            //reading from server and sending it messages back from the console.
-            String serverSays;
-            while((serverSays=in.readLine())!=null){
-                System.out.println(serverSays);
-                if(serverSays.equals("See you in a bit!")) break;
-                out.println(console.readLine());
+    public boolean login(String username, String password) {
+        String cmd = Protocol.LOGIN + " " + username + " " + password;
+        out.println(cmd);
+        try {
+            if (Boolean.valueOf(in.readLine())) {
+                startReadingThread();
+                return true;
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void startReadingThread() {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    String line;
+                    while ((line = in.readLine()) != null) {
+                        String[] tokens = line.split(" ");
+                        if (tokens != null && tokens.length > 0) {
+                            String cmd = tokens[0];
+                            if ("online".equalsIgnoreCase(cmd)) {
+                                handleOnline(tokens);
+                            } else if ("offline".equalsIgnoreCase(cmd)) {
+                                handleOffline(tokens);
+                            } else if ("msg".equalsIgnoreCase(cmd)) {
+                                String[] tokensMsg = line.split(" ");
+                                handleMessage(tokensMsg);
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    try {
+                        serverSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
+
+    }
 
 
-            //new comment to test git
-        }catch (IOException e){e.printStackTrace();}
+    private void handleMessage(String[] tokensMsg) {
+        String login = tokensMsg[1];
+        String msgBody = tokensMsg[2];
 
 
     }
+
+    private void handleOffline(String[] tokens) {
+        String login = tokens[1];
+
+    }
+
+    private void handleOnline(String[] tokens) {
+        String login = tokens[1];
+
+    }
+
 }

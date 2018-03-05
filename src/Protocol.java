@@ -7,6 +7,16 @@
  * May the force be with you.
  */
 public class Protocol {
+    public static final int LOGIN=0;
+
+
+
+
+
+
+
+
+
     NewServerThread thread;
     private static final int AUTH = 0;
     private static final int PROFILE = 1;
