@@ -2,6 +2,8 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.*;
 
 /**
@@ -155,7 +157,7 @@ public class LoginView extends JFrame {
         regPanel.add(confirmButton);
         confirmButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-
+/**
                 if(!String.valueOf(pwField.getPassword()).equals(String.valueOf(pwConfirm.getPassword()))) {
                     stateLabel.setText("Password and confirmation are not equal! Check again!");
                     return;
@@ -164,7 +166,7 @@ public class LoginView extends JFrame {
                     stateLabel.setText("You should fill all fields in the form!");
                     return;
                 }
-
+*/
                 if (client.register(loginField.getText(), String.valueOf(pwField.getPassword()), nameField.getText())) {
                         stateLabel.setText("Successfully registered! You can log in now.");
                     } else stateLabel.setText("Couldn't register. Try again.");
@@ -188,21 +190,40 @@ public class LoginView extends JFrame {
     }
 
 
+
     private class loginActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             String username = loginField.getText();
             String password = String.valueOf(passwordField.getPassword());
-            System.out.println(password);
             if (client.login(username, password)) {
-
-                //MainChatView panel =new MainChatView(client);
-
+                MainChatView panel =new MainChatView(client);
                 JFrame frame = new JFrame("Messenger");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setSize(400, 600);
-                //frame.add(panel);
+                frame.add(panel);
+                frame.pack();
+                frame.setResizable(false);
                 frame.setVisible(true);
+                frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                        if (JOptionPane.showConfirmDialog(frame,
+                                "Are you sure to close this window?", "Really Closing?",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                            try {
+                                client.out.println(Protocol.EXIT+"");
+                                System.exit(0);
+                            } catch (Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
+                        }
+                    }
+                });
+
+                client.startReadingThread();
                 setVisible(false);
+                dispose();
             } else {
                 // show error message
                 stateLabel.setText("Couldn't login! Try again.");

@@ -1,6 +1,10 @@
+
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.TreeSet;
 
 /**
  * Initially created by Roman Gaev
@@ -9,12 +13,13 @@ import java.net.Socket;
  * <p>
  * May the force be with you.
  */
-public class ClientModel {
+public class ClientModel extends Observable {
     private String serverName;
     private int serverPort;
     private Socket serverSocket;
-    private PrintWriter out;
+    public PrintWriter out;
     private BufferedReader in;
+    private MainChatView view;
 
     public ClientModel(String serverName, int serverPort) {
         this.serverName = serverName;
@@ -52,7 +57,6 @@ public class ClientModel {
         out.println(cmd);
         try {
             if (Integer.valueOf(in.readLine())==Protocol.TRUE){
-                startReadingThread();
                 return true;
             }
         } catch (IOException e) {
@@ -60,6 +64,7 @@ public class ClientModel {
         }
         return false;
     }
+
 
     public void startReadingThread() {
         new Thread() {
@@ -70,15 +75,26 @@ public class ClientModel {
                     while ((line = in.readLine()) != null) {
                         String[] tokens = line.split(" ");
                         if (tokens != null && tokens.length > 0) {
-                            String cmd = tokens[0];
-                            if ("online".equalsIgnoreCase(cmd)) {
-                                handleOnline(tokens);
-                            } else if ("offline".equalsIgnoreCase(cmd)) {
-                                handleOffline(tokens);
-                            } else if ("msg".equalsIgnoreCase(cmd)) {
-                                String[] tokensMsg = line.split(" ");
-                                handleMessage(tokensMsg);
+                            int cmd = Integer.valueOf(tokens[0]);
+                            switch(cmd){
+                                case Protocol.ONLINE:
+                                    if(view!=null){view.updateOnline(tokens[1]);}
+                                    System.out.println("client got online");
+                                    break;
+                                case Protocol.OFFLINE:
+                                    if(view!=null){view.updateOffline(tokens[1]);}
+                                    System.out.println("client got offline");
+                                    System.out.println("client remove"+tokens[1]);
+                                    break;
+                                case Protocol.MESSAGE:
+                                    System.out.println("client got message");
+                                    String[] msgtokens = line.split(" ",3);
+                                    if(view!=null){view.updateMessages(msgtokens[1]+": "+ msgtokens[2]);}
+                                    break;
+                                default:
+                                    break;
                             }
+
                         }
                     }
                 } catch (Exception ex) {
@@ -95,22 +111,28 @@ public class ClientModel {
     }
 
 
-    private void handleMessage(String[] tokensMsg) {
-        String login = tokensMsg[1];
-        String msgBody = tokensMsg[2];
-
-
-    }
-
-    private void handleOffline(String[] tokens) {
-        String login = tokens[1];
-
-    }
-
-    private void handleOnline(String[] tokens) {
-        String login = tokens[1];
-
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        System.out.println("client finalize");
+        out.println(Protocol.EXIT+"");
+        try {
+            out.close();
+            in.close();
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
+    public void sendMessage(String text) {
+        String cmd = Protocol.MESSAGE + " " +text;
+        out.println(cmd);
+    }
+
+
+    public void setView(MainChatView view) {
+        this.view=view;
+    }
 }
