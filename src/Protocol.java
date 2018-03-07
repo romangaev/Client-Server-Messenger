@@ -7,58 +7,42 @@
  * May the force be with you.
  */
 public class Protocol {
-    NewServerThread thread;
-    private static final int AUTH = 0;
-    private static final int PROFILE = 1;
+    public static final int LOGIN=0;
+    public  static final int REGISTER=1;
+    public static final int MESSAGE=3;
+    public static final int ONLINE=4;
+    public static final int OFFLINE=5;
 
-    private int state = AUTH;
+    public  static final int EXIT=101;
+    public static final int TRUE=1;
+    public static final int FALSE=0;
+    NewServerThread thread;
+
 
     public Protocol(NewServerThread thread) {
         this.thread = thread;
     }
 
-    public String processInput(String input) {
-        int command = Integer.parseInt(input);
-        String generatedOutput;
+    public void processInput(String input) {
+        String [] tokens= input.split(" ");
+        int command = Integer.parseInt(tokens[0]);
+        System.out.println("3");
+        switch (command) {
+            case LOGIN:
+                thread.login(tokens[1],tokens[2]);
+                break;
 
+            case  REGISTER:
+                thread.register(tokens[1],tokens[2], tokens[3]);
+                break;
 
-        if (state == AUTH) {
-            switch (command) {
-                case 0:
-                    if (thread.signIn()) {
-                        generatedOutput = "Successfully logged in!. 0 for your private user information (I mean no private naked photos). 1 to log out to main menu";
-                        state = PROFILE;
-                    } else
-                        generatedOutput = "Couldn't log in! Something is wrong either with your login or your password or your hands...";
-                    break;
-                case 1:
-                    generatedOutput = "Sorry! This function is unavailable so far! I need to stop drinking Guinness so much and code more...";
-                    break;
-                case 2:
-                    generatedOutput = "Did you really think you deserve a surprise? Oh, come on. I would never spend my time on you.";
-                    break;
-                default:
-                    generatedOutput = "See you in a bit!";
-                    break;
-            }
-        } else if (state == PROFILE) {
-            switch (command) {
-                case 0:
-                    generatedOutput = thread.getCurrentUser().toString() + ". 0 for your private user information (I mean no private naked photos). 1 to log out to main menu";
-                    break;
-                default:
-                    thread.setCurrentUser(null);
-                    generatedOutput = "Greetings, motherfucker! Welcome to server! 0 to sign in. 1 to sign up. 2 to get a surprise. 3 to quit the program:";
-                    state = AUTH;
-                    break;
-            }
-        } else {
-            generatedOutput = "Bye.";
-            state = AUTH;
+            case MESSAGE:
+                thread.sentMessage(input.split(" ",2)[1]);
+                break;
+
         }
 
-        return generatedOutput;
-    }
 
+    }
 
 }

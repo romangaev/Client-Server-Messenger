@@ -1,8 +1,12 @@
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Properties;
 /**
  * Initially created by Roman Gaev
@@ -11,12 +15,19 @@ import java.util.Properties;
  * <p>
  * May the force be with you.
  */
-public class ServerModel {
-    public static void main(String[] args) {
+public class ServerModel extends Thread {
+    private ArrayList<NewServerThread> threadPool = new ArrayList<NewServerThread>();
+
+    public ArrayList<NewServerThread> getThreadPool() {
+        return threadPool;
+    }
+
+@Override
+    public void run() {
         //creating a server socket
         ServerSocket serverSocket=null;
         try {
-            serverSocket = new ServerSocket(5000);
+            serverSocket = new ServerSocket(6000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,10 +53,14 @@ public class ServerModel {
             //waiting for new clients to come and creating new threads for each of them
             while (true) {
                 clientSocket = serverSocket.accept();
-                NewServerThread newClient = new NewServerThread(clientSocket, statement);
+                NewServerThread newClient = new NewServerThread(this, clientSocket, statement);
+                threadPool.add(newClient);
                 newClient.start();
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
             try {
                 serverSocket.close();
             }
@@ -57,6 +72,5 @@ public class ServerModel {
 
 
     }
-
 
 }
