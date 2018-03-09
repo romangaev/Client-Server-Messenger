@@ -18,7 +18,7 @@ public class MainChatView extends JPanel implements ActionListener{
 
     private DefaultListModel<String> msgModel = new DefaultListModel<>();
     private JList<String> msgList = new JList<>(msgModel);
-    private JTextArea inputField= new JTextArea(3,50);
+    private JTextField inputField= new JTextField(50); // Changed from JTextArea to JTextField
 
 
 
