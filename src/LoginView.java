@@ -197,7 +197,7 @@ public class LoginView extends JFrame {
             String password = String.valueOf(passwordField.getPassword());
             if (client.login(username, password)) {
                 MainChatView panel =new MainChatView(client);
-                JFrame frame = new JFrame("Messenger");
+                JFrame frame = new JFrame("Messenger" + " - " + client.getLogin() );
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.add(panel);
                 frame.pack();

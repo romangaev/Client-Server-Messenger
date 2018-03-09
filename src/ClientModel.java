@@ -20,6 +20,7 @@ public class ClientModel extends Observable {
     public PrintWriter out;
     private BufferedReader in;
     private MainChatView view;
+    private String login;
 
     public ClientModel(String serverName, int serverPort) {
         this.serverName = serverName;
@@ -57,6 +58,7 @@ public class ClientModel extends Observable {
         out.println(cmd);
         try {
             if (Integer.valueOf(in.readLine())==Protocol.TRUE){
+                login = username;
                 return true;
             }
         } catch (IOException e) {
@@ -134,5 +136,9 @@ public class ClientModel extends Observable {
 
     public void setView(MainChatView view) {
         this.view=view;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }
