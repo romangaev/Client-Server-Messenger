@@ -30,11 +30,25 @@ public class MainChatView extends JPanel implements ActionListener{
         add(new JScrollPane(msgList),BorderLayout.CENTER);
         add(new JScrollPane(userListUI),BorderLayout.WEST);
 
+        GridBagConstraints left = new GridBagConstraints();
+        left.anchor = GridBagConstraints.LINE_START;
+        left.fill = GridBagConstraints.HORIZONTAL;
+        left.weightx = 512.0D;
+        left.weighty = 1.0D;
+
+        GridBagConstraints right = new GridBagConstraints();
+        right.insets = new Insets(0, 10, 0, 0);
+        right.anchor = GridBagConstraints.LINE_END;
+        right.fill = GridBagConstraints.NONE;
+        right.weightx = 1.0D;
+        right.weighty = 1.0D;
+        
         JPanel south = new JPanel();
+        south.setBackground(Color.LIGHT_GRAY);
         JButton sendButton = new JButton("Send");
         sendButton.addActionListener(this);
-        south.add(inputField);
-        south.add(sendButton);
+        south.add(inputField, right);
+        south.add(sendButton, left);
         add(south, BorderLayout.SOUTH);
     }
 
