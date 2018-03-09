@@ -91,7 +91,11 @@ public class ClientModel extends Observable {
                                 case Protocol.MESSAGE:
                                     System.out.println("client got message");
                                     String[] msgtokens = line.split(" ",3);
-                                    if(view!=null){view.updateMessages(msgtokens[1]+": "+ msgtokens[2]);}
+
+                                    String loginToPring=msgtokens[1];
+                                    if(msgtokens[1].equals(login)) loginToPring="You";
+
+                                    if(view!=null){view.updateMessages(loginToPring+": "+ msgtokens[2]);}
                                     break;
                                 default:
                                     break;
@@ -129,8 +133,10 @@ public class ClientModel extends Observable {
 
 
     public void sendMessage(String text) {
-        String cmd = Protocol.MESSAGE + " " +text;
-        out.println(cmd);
+        if(!text.equals("")&&!text.equals(" ")){
+            String cmd = Protocol.MESSAGE + " " +text;
+            out.println(cmd);
+        }
     }
 
 

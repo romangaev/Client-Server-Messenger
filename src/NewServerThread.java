@@ -43,7 +43,6 @@ public class NewServerThread extends Thread {
 
             //communication with the client using the protocol
             String userRequest;
-            int serverResponse;
 
             while ((userRequest = in.readLine()) != null) {
                 if (userRequest.equals(Protocol.EXIT + "")) {
@@ -74,7 +73,8 @@ public class NewServerThread extends Thread {
         List<NewServerThread> pool = server.getThreadPool();
         pool.forEach(x-> {
             User otherUser = x.getCurrentUser();
-                if(otherUser!=null&&!otherUser.getLogin().equals(currentUser.getLogin())) x.out.println(Protocol.MESSAGE +" "+currentUser.getLogin()+" "+ msg);
+                //if(otherUser!=null&&!otherUser.getLogin().equals(currentUser.getLogin())) x.out.println(Protocol.MESSAGE +" "+currentUser.getLogin()+" "+ msg);
+                if(!x.equals(this)&&otherUser!=null)x.out.println(Protocol.MESSAGE +" "+currentUser.getLogin()+" "+ msg);
         });
     }
 

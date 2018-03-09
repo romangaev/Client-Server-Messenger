@@ -42,6 +42,8 @@ public class MainChatView extends JPanel implements ActionListener{
 
     public void actionPerformed(ActionEvent e) {
         client.sendMessage(inputField.getText());
+
+
         msgModel.addElement("You: "+inputField.getText());
         inputField.setText("");
     }
