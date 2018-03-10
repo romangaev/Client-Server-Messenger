@@ -1,43 +1,36 @@
-import javafx.beans.InvalidationListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.TreeSet;
+import java.awt.event.*;
 
-public class MainChatView extends JPanel implements ActionListener{
+
+public class MainChatView extends JPanel implements ActionListener {
 
     private ClientModel client;
-
-    private DefaultListModel<String> userListModel= new DefaultListModel<>();
-    private JList<String> userListUI=new JList<>(userListModel);
-
-    private DefaultListModel<String> msgModel = new DefaultListModel<>();
-    private JList<String> msgList = new JList<String>(msgModel){
-
-        /**
-         * @inherited <p>
-         */
-        @Override
-        public boolean getScrollableTracksViewportWidth() {
-            return true;
-        }
-
-
-    };
-    private JTextArea inputField= new JTextArea(3,50);
-
+    private DefaultListModel<String> userListModel;
+    private JList<String> userListUI;
+    private DefaultListModel<String> msgModel;
+    private JList<String> msgList;
+    private JTextArea inputField;
 
 
     public MainChatView(ClientModel client) {
-        this.client=client;
+        //initializing client for view and sending reference for that view to client
+        this.client = client;
         client.setView(this);
 
+        //initializing User lists (left side)
+        userListModel = new DefaultListModel<>();
+        userListUI = new JList<>(userListModel);
 
+        // initializing message list and list renderers stuff
+        msgModel = new DefaultListModel<>();
+        msgList = new JList<String>(msgModel) {
+            @Override
+            public boolean getScrollableTracksViewportWidth() {
+                return true;
+            }
+        };
         msgList.setCellRenderer(new MyCellRenderer());
         ComponentListener l = new ComponentAdapter() {
             @Override
@@ -48,64 +41,64 @@ public class MainChatView extends JPanel implements ActionListener{
                 msgList.setFixedCellHeight(10);
                 msgList.setFixedCellHeight(-1);
             }
-
         };
         msgList.addComponentListener(l);
 
-
-        setLayout(new BorderLayout());
-        add(new JScrollPane(msgList),BorderLayout.CENTER);
-        add(new JScrollPane(userListUI),BorderLayout.WEST);
-
-        GridBagConstraints left = new GridBagConstraints();
-        left.anchor = GridBagConstraints.LINE_START;
-        left.fill = GridBagConstraints.HORIZONTAL;
-        left.weightx = 512.0D;
-        left.weighty = 1.0D;
-
-        GridBagConstraints right = new GridBagConstraints();
-        right.insets = new Insets(0, 10, 0, 0);
-        right.anchor = GridBagConstraints.LINE_END;
-        right.fill = GridBagConstraints.NONE;
-        right.weightx = 1.0D;
-        right.weighty = 1.0D;
-
+        // initializing GUI for south panel
         JPanel south = new JPanel();
+        south.setLayout(new BorderLayout());
         south.setBackground(Color.LIGHT_GRAY);
-        JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(this);
-        south.add(inputField, right);
-        south.add(sendButton, left);
+
+        JPanel inner = new JPanel();
+        inner.setLayout(new BorderLayout());
+        inner.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        inputField = new JTextArea();
         inputField.setLineWrap(true);
         inputField.setWrapStyleWord(true);
-        south.add(inputField);
-        south.add(sendButton);
+
+        JButton sendButton = new JButton("Send");
+        sendButton.addActionListener(this);
+
+        inner.add(inputField, BorderLayout.CENTER);
+        inner.add(sendButton, BorderLayout.EAST);
+        south.add(inner, BorderLayout.CENTER);
+
+        //adding to main panel
+        setLayout(new BorderLayout());
+        add(new JScrollPane(msgList), BorderLayout.CENTER);
+        add(new JScrollPane(userListUI), BorderLayout.WEST);
         add(south, BorderLayout.SOUTH);
+
+
     }
 
-
-
+    //Action listener for Send Button
     public void actionPerformed(ActionEvent e) {
         String text = inputField.getText();
-        if(!text.equals("")&&!text.equals(" ")){
+        if (!text.equals("") && !text.equals(" ")) {
             client.sendMessage(text);
-            msgModel.addElement("You: "+text);
+            msgModel.addElement("You: " + text);
             inputField.setText("");
         }
     }
 
+    //methods called by client model to update lists
+    public void updateOnline(String s) {
+        userListModel.addElement(s);
+    }
 
-    public void updateOnline(String s){userListModel.addElement(s);}
-    public void updateOffline(String s){userListModel.removeElement(s);}
-    public void updateMessages(String s){msgModel.addElement(s);}
+    public void updateOffline(String s) {
+        userListModel.removeElement(s);
+    }
+
+    public void updateMessages(String s) {
+        msgModel.addElement(s);
+    }
 
 
-
-
-
-
+    //render class to render appereance of lists
     public class MyCellRenderer implements ListCellRenderer {
-
         private JPanel p;
         private JPanel iconPanel;
         private JLabel l;
@@ -133,7 +126,7 @@ public class MainChatView extends JPanel implements ActionListener{
         public Component getListCellRendererComponent(final JList list,
                                                       final Object value, final int index, final boolean isSelected,
                                                       final boolean hasFocus) {
-            String[] tokens =((String)value).split(" ",2);
+            String[] tokens = ((String) value).split(" ", 2);
             l.setText(tokens[0]);
             ta.setText(tokens[1]);
             int width = list.getWidth();

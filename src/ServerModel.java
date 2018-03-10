@@ -1,6 +1,4 @@
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 
 import java.io.IOException;
 import java.net.ServerSocket;

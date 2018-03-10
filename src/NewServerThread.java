@@ -68,17 +68,6 @@ public class NewServerThread extends Thread {
         }
     }
 
-/**
-    public void sendMessage(String msg) {
-        List<NewServerThread> pool = server.getThreadPool();
-        pool.forEach(x-> {
-            User otherUser = x.getCurrentUser();
-                //   if(otherUser!=null&&!otherUser.getLogin().equals(currentUser.getLogin())) x.out.println(Protocol.MESSAGE +" "+currentUser.getLogin()+" "+ msg);
-                if(!x.equals(this)&&otherUser!=null)x.out.println(Protocol.MESSAGE +" "+currentUser.getLogin()+" "+ msg);
-        });
-    }
-
-*/
     public void sendMessage(Message message) {
         try {
             List<NewServerThread> pool = server.getThreadPool();
@@ -129,8 +118,7 @@ public class NewServerThread extends Thread {
                     "    table_schema NOT IN ('pg_catalog', 'information_schema');");
 
             ResultSet rs = statement.executeQuery("SELECT username, password,name FROM users WHERE username = '" + username + "'");
-            if (rs.next()) {
-                if (rs.getString(1).equals(username) && rs.getString(2).equals(password)) {
+                if (rs.next()&&rs.getString(1).equals(username) && rs.getString(2).equals(password)) {
                     currentUser = new User(rs.getString(1), rs.getString(2), rs.getString(3));
                     oos.writeObject(new Message(Protocol.TRUE));
 
@@ -160,10 +148,9 @@ public class NewServerThread extends Thread {
                                 }
                             }
                     );
+                } else{
+                    oos.writeObject(new Message(Protocol.FALSE));
                 }
-            } else {
-                oos.writeObject(new Message(Protocol.FALSE));
-            }
         } catch (SQLException e) {
             e.printStackTrace();
             oos.writeObject(new Message(Protocol.FALSE));

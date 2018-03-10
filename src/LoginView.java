@@ -2,8 +2,6 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
 import javax.swing.*;
 
 /**
@@ -100,7 +98,6 @@ public class LoginView extends JFrame {
         });
 
 
-
         return logPanel;
     }
 
@@ -158,27 +155,27 @@ public class LoginView extends JFrame {
         confirmButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
 /**
-                if(!String.valueOf(pwField.getPassword()).equals(String.valueOf(pwConfirm.getPassword()))) {
-                    stateLabel.setText("Password and confirmation are not equal! Check again!");
-                    return;
-                }
-                if(pwField.getPassword().length==0 && pwConfirm.getPassword().length==0 && nameField.getText().equals("")&& loginField.getText().equals("")) {
-                    stateLabel.setText("You should fill all fields in the form!");
-                    return;
-                }
-*/
+ if(!String.valueOf(pwField.getPassword()).equals(String.valueOf(pwConfirm.getPassword()))) {
+ stateLabel.setText("Password and confirmation are not equal! Check again!");
+ return;
+ }
+ if(pwField.getPassword().length==0 && pwConfirm.getPassword().length==0 && nameField.getText().equals("")&& loginField.getText().equals("")) {
+ stateLabel.setText("You should fill all fields in the form!");
+ return;
+ }
+ */
                 if (client.register(loginField.getText(), String.valueOf(pwField.getPassword()), nameField.getText())) {
-                        stateLabel.setText("Successfully registered! You can log in now.");
-                    } else stateLabel.setText("Couldn't register. Try again.");
-                    CardLayout cl = (CardLayout) (cardsPanel.getLayout());
-                    cl.next(cardsPanel);
+                    stateLabel.setText("Successfully registered! You can log in now.");
+                } else stateLabel.setText("Couldn't register. Try again.");
+                CardLayout cl = (CardLayout) (cardsPanel.getLayout());
+                cl.next(cardsPanel);
 
             }
         });
         regPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
         JButton backButton = new JButton("Back");
-        backButton.addActionListener( new ActionListener() {
+        backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 CardLayout cl = (CardLayout) (cardsPanel.getLayout());
                 cl.next(cardsPanel);
@@ -190,18 +187,17 @@ public class LoginView extends JFrame {
     }
 
 
-
     private class loginActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             String username = loginField.getText();
             String password = String.valueOf(passwordField.getPassword());
             if (client.login(username, password)) {
-                MainChatView panel =new MainChatView(client);
-                JFrame frame = new JFrame("Messenger" + " - " + client.getLogin() );
+                MainChatView panel = new MainChatView(client);
+                JFrame frame = new JFrame("Messenger" + " - " + client.getLogin());
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.add(panel);
                 frame.pack();
-                frame.setResizable(false);
+                frame.setResizable(true);
                 frame.setVisible(true);
                 frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
                 frame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -210,7 +206,7 @@ public class LoginView extends JFrame {
                         if (JOptionPane.showConfirmDialog(frame,
                                 "Are you sure to close this window?", "Really Closing?",
                                 JOptionPane.YES_NO_OPTION,
-                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                             try {
                                 client.getOut().writeObject(new Message(Protocol.EXIT));
                                 System.exit(0);
