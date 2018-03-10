@@ -1,3 +1,4 @@
+import java.io.IOException;
 
 /**
  * Initially created by Roman Gaev
@@ -23,21 +24,19 @@ public class Protocol {
         this.thread = thread;
     }
 
-    public void processInput(String input) {
-        String [] tokens= input.split(" ");
-        int command = Integer.parseInt(tokens[0]);
-        System.out.println("3");
+    public void processInput(Message message) throws IOException {
+        int command = message.getCommand();
         switch (command) {
             case LOGIN:
-                thread.login(tokens[1],tokens[2]);
+                thread.login(message.getContent()[0],message.getContent()[1]);
                 break;
 
             case  REGISTER:
-                thread.register(tokens[1],tokens[2], tokens[3]);
+                thread.register(message.getContent()[0],message.getContent()[1], message.getContent()[2]);
                 break;
 
             case MESSAGE:
-                thread.sentMessage(input.split(" ",2)[1]);
+                thread.sendMessage(message);
                 break;
 
         }

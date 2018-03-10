@@ -212,7 +212,7 @@ public class LoginView extends JFrame {
                                 JOptionPane.YES_NO_OPTION,
                                 JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
                             try {
-                                client.out.println(Protocol.EXIT+"");
+                                client.getOut().writeObject(new Message(Protocol.EXIT));
                                 System.exit(0);
                             } catch (Throwable throwable) {
                                 throwable.printStackTrace();
