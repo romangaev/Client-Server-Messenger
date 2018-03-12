@@ -80,6 +80,8 @@ public class MainChatView extends JPanel implements ActionListener {
             client.sendMessage(text);
             msgModel.addElement("You: " + text);
             inputField.setText("");
+        } else {
+            JOptionPane.showMessageDialog(new JFrame(), "You should write something!", "Error", JOptionPane.WARNING_MESSAGE);
         }
     }
 
