@@ -1,14 +1,23 @@
+import java.io.File;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 public class Message implements Serializable{
-    int command;
-    String[] content;
+    private int command;
+    private String[] content;
+    private File file= null;
+
     public Message(int command){
         this.command=command;
     }
     public Message(int command, String[]content){
         this.command=command;
         this.content= content;
+    }
+    public Message(int command, String[]content, File file){
+        this.command=command;
+        this.content= content;
+        this.file=file;
     }
 
     public int getCommand() {
@@ -17,5 +26,9 @@ public class Message implements Serializable{
 
     public String[] getContent() {
         return content;
+    }
+
+    public File getFile() {
+        return file;
     }
 }

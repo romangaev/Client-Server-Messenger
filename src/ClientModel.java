@@ -128,7 +128,7 @@ public class ClientModel extends Observable {
 
     public void sendMessage(String text) {
             try{
-            oos.writeObject(new Message(Protocol.MESSAGE,new String[]{login,text}));
+            oos.writeObject(new Message(Protocol.MESSAGE,new String[]{login,TO SOMEBODY!!!!, text}));
             }catch (Exception e){e.printStackTrace();}
 
     }

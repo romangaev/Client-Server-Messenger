@@ -21,7 +21,7 @@ public class LoginView extends JFrame {
         super("Login/Sign up");
 
         //Set up client
-        client = new ClientModel("localhost", 6000);
+        client = new ClientModel("10.20.48.220", 22001);
         if (!client.connect()) stateLabel.setText("Error: unable to connect!");
         else stateLabel.setText("Connection is established");
         //Set up GUI
@@ -91,7 +91,7 @@ public class LoginView extends JFrame {
         });
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                client = new ClientModel("localhost", 6000);
+                client = new ClientModel("10.20.48.220", 22001);
                 if (!client.connect()) stateLabel.setText("Error: still unable to connect!");
                 else stateLabel.setText("Connection is established");
             }

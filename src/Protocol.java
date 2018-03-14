@@ -28,11 +28,11 @@ public class Protocol {
         int command = message.getCommand();
         switch (command) {
             case LOGIN:
-                thread.login(message.getContent()[0],message.getContent()[1]);
+                thread.login(message.getContent()[0], message.getContent()[1]);
                 break;
 
             case  REGISTER:
-                thread.register(message.getContent()[0],message.getContent()[1], message.getContent()[2]);
+                thread.register(message.getContent()[0], message.getContent()[1], message.getContent()[2]);
                 break;
 
             case MESSAGE:

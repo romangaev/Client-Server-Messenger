@@ -25,7 +25,7 @@ public class ServerModel extends Thread {
         //creating a server socket
         ServerSocket serverSocket=null;
         try {
-            serverSocket = new ServerSocket(6000);
+            serverSocket = new ServerSocket(22001);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -51,7 +51,7 @@ public class ServerModel extends Thread {
             //waiting for new clients to come and creating new threads for each of them
             while (true) {
                 clientSocket = serverSocket.accept();
-                NewServerThread newClient = new NewServerThread(this, clientSocket, statement);
+                NewServerThread newClient = new NewServerThread(this, clientSocket, dbConnection);
                 threadPool.add(newClient);
                 newClient.start();
             }
