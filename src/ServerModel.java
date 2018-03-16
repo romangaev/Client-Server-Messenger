@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
+
 /**
  * Initially created by Roman Gaev
  * 26.02.2018
@@ -14,9 +16,9 @@ import java.util.Properties;
  * May the force be with you.
  */
 public class ServerModel extends Thread {
-    private ArrayList<NewServerThread> threadPool = new ArrayList<NewServerThread>();
+    private Set<NewServerThread> threadPool = new HashSet<>();
 
-    public ArrayList<NewServerThread> getThreadPool() {
+    public Set<NewServerThread> getThreadPool() {
         return threadPool;
     }
 

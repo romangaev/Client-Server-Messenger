@@ -1,7 +1,11 @@
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainChatView extends JPanel implements ActionListener {
@@ -9,10 +13,11 @@ public class MainChatView extends JPanel implements ActionListener {
     private ClientModel client;
     private DefaultListModel<String> userListModel;
     private JList<String> userListUI;
+    public ListSelectionModel listSelectionModel;
     private DefaultListModel<String> msgModel;
     private JList<String> msgList;
     private JTextArea inputField;
-
+    private Map<String,Integer> idNameGroups;
 
     public MainChatView(ClientModel client) {
         //initializing client for view and sending reference for that view to client
@@ -22,6 +27,36 @@ public class MainChatView extends JPanel implements ActionListener {
         //initializing User lists (left side)
         userListModel = new DefaultListModel<>();
         userListUI = new JList<>(userListModel);
+
+
+        //CREATING  A SPECIAL MAP CHATROOM ID - NAME
+        idNameGroups = new HashMap<>();
+       client.getAllUsers().forEach(
+               (key, value) -> {
+                   if (value.getName().equals("private")) {
+                       String  name=null;
+
+                       for(String member : value.getParticipants()){
+                           if(!member.equals(client.getLogin()))
+                               name=member;
+                           break;
+                       }
+
+                       idNameGroups.put(name+" offline",key);
+                   } else {
+                       idNameGroups.put(value.getName(),key);
+                   }
+               }
+       );
+        for(String every : idNameGroups.keySet()){
+            userListModel.addElement(every);
+        }
+        listSelectionModel = userListUI.getSelectionModel();
+        listSelectionModel.addListSelectionListener(
+                new SharedListSelectionHandler());
+        listSelectionModel.setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION);
+
 
         // initializing message list and list renderers stuff
         msgModel = new DefaultListModel<>();
@@ -76,8 +111,10 @@ public class MainChatView extends JPanel implements ActionListener {
     //Action listener for Send Button
     public void actionPerformed(ActionEvent e) {
         String text = inputField.getText();
+        int groupId = idNameGroups.get(userListUI.getSelectedValue());
+
         if (!text.equals("") && !text.equals(" ")) {
-            client.sendMessage(text);
+            client.sendMessage(groupId,text);
             msgModel.addElement("You: " + text);
             inputField.setText("");
         } else {
@@ -87,11 +124,13 @@ public class MainChatView extends JPanel implements ActionListener {
 
     //methods called by client model to update lists
     public void updateOnline(String s) {
-        userListModel.addElement(s);
+        userListModel.removeElement(s);
+        userListModel.addElement(s+" online");
     }
 
     public void updateOffline(String s) {
-        userListModel.removeElement(s);
+        userListModel.removeElement(s+" online");
+        userListModel.addElement(s+" offline");
     }
 
     public void updateMessages(String s) {
@@ -137,6 +176,37 @@ public class MainChatView extends JPanel implements ActionListener {
                 ta.setSize(width, Short.MAX_VALUE);
             return p;
 
+        }
+    }
+
+
+
+    class SharedListSelectionHandler implements ListSelectionListener {
+        public void valueChanged(ListSelectionEvent e) {
+            ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+
+            int firstIndex = e.getFirstIndex();
+            int lastIndex = e.getLastIndex();
+            boolean isAdjusting = e.getValueIsAdjusting();
+            output.append("Event for indexes "
+                    + firstIndex + " - " + lastIndex
+                    + "; isAdjusting is " + isAdjusting
+                    + "; selected indexes:");
+
+            if (lsm.isSelectionEmpty()) {
+                output.append(" <none>");
+            } else {
+                // Find out which indexes are selected.
+                int minIndex = lsm.getMinSelectionIndex();
+                int maxIndex = lsm.getMaxSelectionIndex();
+                for (int i = minIndex; i <= maxIndex; i++) {
+                    if (lsm.isSelectedIndex(i)) {
+                        output.append(" " + i);
+                    }
+                }
+            }
+            output.append(newline);
+            output.setCaretPosition(output.getDocument().getLength());
         }
     }
 }

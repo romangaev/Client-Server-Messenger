@@ -2,7 +2,9 @@ import java.io.*;
 import java.net.Socket;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Initially created by Roman Gaev
@@ -152,8 +154,28 @@ public class NewServerThread extends Thread {
                     currentUser = new User(rs.getString(1), rs.getString(2), rs.getString(3));
                     oos.writeObject(new Message(Protocol.TRUE));
 
-                    ArrayList<NewServerThread> pool = server.getThreadPool();
+                    // send to user conversations information
+                    //creating a MAP where we will store conversation info and send it to client to show as contact list
+                   Map<Integer,Conversation> conversations = new HashMap<>();
+                   ResultSet ids = statement.executeQuery("SELECT group_id FROM groups WHERE username='"+username+"'");
+                   while(ids.next()){
+                       Statement statement2 = connection.createStatement();
+                       ResultSet rs2 = statement2.executeQuery("SELECT * FROM groups WHERE group_id='"+ids.getInt(1)+"'");
+                       while(rs2.next()){
+                           int id=rs2.getInt(1);
+                           String user= rs2.getString(2);
+                           String groupName= rs2.getString(3);
+
+                           if(!conversations.containsKey(id))
+                               conversations.put(id, new Conversation(groupName,user));
+                           else conversations.get(id).getParticipants().add(user);
+                       }
+                   }
+
+                   oos.writeObject(new HashMap<Integer,Conversation>());
+
                     // send current user all other online logins
+                    ArrayList<NewServerThread> pool = server.getThreadPool();
                     pool.forEach(x -> {
                                 User threadUser = x.getCurrentUser();
                                 if (threadUser != null && !threadUser.getLogin().equals(getCurrentUser().getLogin())) {

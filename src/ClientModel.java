@@ -2,6 +2,9 @@
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 
 /**
@@ -19,6 +22,7 @@ public class ClientModel extends Observable {
     private String login;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
+    private Map<Integer,Conversation> allUsers;
 
     public ClientModel(String serverName, int serverPort) {
         this.serverName = serverName;
@@ -56,6 +60,7 @@ public class ClientModel extends Observable {
             oos.writeObject(new Message(Protocol.LOGIN, new String[]{username,password}));
             if (((Message) ois.readObject()).getCommand()==Protocol.TRUE){
                 login = username;
+                allUsers=(Map) ois.readObject();
                 return true;
             }
         } catch (Exception e) {
@@ -126,9 +131,9 @@ public class ClientModel extends Observable {
     }
 
 
-    public void sendMessage(String text) {
+    public void sendMessage(int groupId, String text) {
             try{
-            oos.writeObject(new Message(Protocol.MESSAGE,new String[]{login,TO SOMEBODY!!!!, text}));
+            oos.writeObject(new Message(Protocol.MESSAGE,new String[]{login,String.valueOf(groupId), text}));
             }catch (Exception e){e.printStackTrace();}
 
     }
@@ -144,5 +149,9 @@ public class ClientModel extends Observable {
 
     public ObjectOutputStream getOut() {
         return oos;
+    }
+
+    public Map<Integer, Conversation> getAllUsers() {
+        return allUsers;
     }
 }
