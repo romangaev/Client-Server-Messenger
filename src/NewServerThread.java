@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,6 +22,7 @@ public class NewServerThread extends Thread {
     private User currentUser;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
+
     //constructor with database connection and client's socket
     public NewServerThread(ServerModel server, Socket client, Statement statement) throws IOException {
         super("NewServerThread");
@@ -43,8 +45,8 @@ public class NewServerThread extends Thread {
             //communication with the client using the protocol
             Message userMessage;
 
-            while ((userMessage =(Message) ois.readObject()) != null) {
-                if (userMessage.getCommand()==Protocol.EXIT) {
+            while ((userMessage = (Message) ois.readObject()) != null) {
+                if (userMessage.getCommand() == Protocol.EXIT) {
                     System.out.println("server got exit");
                     oos.writeObject(new Message(Protocol.EXIT));
                     logoff();
@@ -82,7 +84,21 @@ public class NewServerThread extends Thread {
                     }
                 }
             });
-        }catch (Exception e){e.printStackTrace();}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // Array to check if every single character of the username is a letter
+    public boolean checkForLetter(char[] charArray) {
+
+        for (char c : charArray) {
+            if (!Character.isAlphabetic(c)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void register(String username, String password, String legalname) throws IOException {
@@ -98,11 +114,25 @@ public class NewServerThread extends Thread {
             ResultSet rs = statement.executeQuery("SELECT MAX(id) FROM users");
             rs.next();
             int nextId = rs.getInt(1) + 1;
+
+
+            char[] userChars = username.toCharArray();
+            char[] passwordChars = password.toCharArray();
+
+            // Checking if a username only contains alphabetical characters based on the checkForLetter method
+            // Checking if a username length is between 5-10 characters long
+            if (!checkForLetter(userChars) || username.length() < 5 || username.length() > 11) {
+                JOptionPane.showMessageDialog(new JFrame(), "Your username should not be empty. \nThe length should be 5-10 characters " +
+                        "long. \nYour username should only contain letters!", "Username Error", JOptionPane.WARNING_MESSAGE);
+//            } else if (){
+
+            }
+
             statement.executeUpdate("INSERT INTO users VALUES ('" + nextId + "','" + username + "','" + password + "','" + legalname + "')");
             oos.writeObject(new Message(Protocol.TRUE));
         } catch (SQLException e) {
             e.printStackTrace();
-                oos.writeObject(new Message(Protocol.FALSE));
+            oos.writeObject(new Message(Protocol.FALSE));
         }
     }
 
@@ -118,39 +148,39 @@ public class NewServerThread extends Thread {
                     "    table_schema NOT IN ('pg_catalog', 'information_schema');");
 
             ResultSet rs = statement.executeQuery("SELECT username, password,name FROM users WHERE username = '" + username + "'");
-                if (rs.next()&&rs.getString(1).equals(username) && rs.getString(2).equals(password)) {
-                    currentUser = new User(rs.getString(1), rs.getString(2), rs.getString(3));
-                    oos.writeObject(new Message(Protocol.TRUE));
+            if (rs.next() && rs.getString(1).equals(username) && rs.getString(2).equals(password)) {
+                currentUser = new User(rs.getString(1), rs.getString(2), rs.getString(3));
+                oos.writeObject(new Message(Protocol.TRUE));
 
-                    ArrayList<NewServerThread> pool = server.getThreadPool();
-                    // send current user all other online logins
-                    pool.forEach(x -> {
-                                User threadUser = x.getCurrentUser();
-                                if (threadUser != null && !threadUser.getLogin().equals(getCurrentUser().getLogin())) {
-                                    try {
-                                        oos.writeObject(new Message(Protocol.ONLINE,new String[]{threadUser.getLogin()}));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+                ArrayList<NewServerThread> pool = server.getThreadPool();
+                // send current user all other online logins
+                pool.forEach(x -> {
+                            User threadUser = x.getCurrentUser();
+                            if (threadUser != null && !threadUser.getLogin().equals(getCurrentUser().getLogin())) {
+                                try {
+                                    oos.writeObject(new Message(Protocol.ONLINE, new String[]{threadUser.getLogin()}));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
-                    );
+                        }
+                );
 
-                    // send other online users current user's status
-                    String login = getCurrentUser().getLogin();
-                    pool.forEach(x -> {
-                                if (x.getCurrentUser() != null && !login.equals(x.getCurrentUser().getLogin())) {
-                                    try {
-                                        x.getOut().writeObject(new Message(Protocol.ONLINE,new String[]{login}));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
+                // send other online users current user's status
+                String login = getCurrentUser().getLogin();
+                pool.forEach(x -> {
+                            if (x.getCurrentUser() != null && !login.equals(x.getCurrentUser().getLogin())) {
+                                try {
+                                    x.getOut().writeObject(new Message(Protocol.ONLINE, new String[]{login}));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
-                    );
-                } else{
-                    oos.writeObject(new Message(Protocol.FALSE));
-                }
+                        }
+                );
+            } else {
+                oos.writeObject(new Message(Protocol.FALSE));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             oos.writeObject(new Message(Protocol.FALSE));
@@ -166,7 +196,7 @@ public class NewServerThread extends Thread {
                     User threadUser = x.getCurrentUser();
                     if (threadUser != null) {
                         try {
-                            x.getOut().writeObject(new Message(Protocol.OFFLINE,new String[]{currentUser.getLogin()}));
+                            x.getOut().writeObject(new Message(Protocol.OFFLINE, new String[]{currentUser.getLogin()}));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

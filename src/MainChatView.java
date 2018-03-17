@@ -15,15 +15,15 @@ public class MainChatView extends JPanel implements ActionListener {
 
 
     public MainChatView(ClientModel client) {
-        //initializing client for view and sending reference for that view to client
+        // Initializing client for view and sending reference for that view to client
         this.client = client;
         client.setView(this);
 
-        //initializing User lists (left side)
+        // Initializing User lists (left side)
         userListModel = new DefaultListModel<>();
         userListUI = new JList<>(userListModel);
 
-        // initializing message list and list renderers stuff
+        // Initializing message list and list renderers stuff
         msgModel = new DefaultListModel<>();
         msgList = new JList<String>(msgModel) {
             @Override
@@ -35,7 +35,8 @@ public class MainChatView extends JPanel implements ActionListener {
         ComponentListener l = new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                // next line possible if list is of type JXList
+
+                // Next line possible if list is of type JXList
                 // list.invalidateCellSizeCache();
                 // for core: force cache invalidation by temporarily setting fixed height
                 msgList.setFixedCellHeight(10);
@@ -91,7 +92,7 @@ public class MainChatView extends JPanel implements ActionListener {
         }
     }
 
-    //methods called by client model to update lists
+    // Methods called by client model to update lists
     public void updateOnline(String s) {
         userListModel.addElement(s);
     }
@@ -105,7 +106,7 @@ public class MainChatView extends JPanel implements ActionListener {
     }
 
 
-    //render class to render appereance of lists
+    // Render class to render appearance of lists
     public class MyCellRenderer implements ListCellRenderer {
         private JPanel p;
         private JPanel iconPanel;
@@ -138,7 +139,7 @@ public class MainChatView extends JPanel implements ActionListener {
             l.setText(tokens[0]);
             ta.setText(tokens[1]);
             int width = list.getWidth();
-            // this is just to lure the ta's internal sizing mechanism into action
+            // This is just to lure the ta's internal sizing mechanism into action
             if (width > 0)
                 ta.setSize(width, Short.MAX_VALUE);
             return p;
