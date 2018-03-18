@@ -90,7 +90,7 @@ public class ClientModel extends Observable {
                                 case Protocol.MESSAGE:
                                     System.out.println("client got message");
                                     String loginToPrint=tokens[0];
-                                    if(tokens[0].equals(login)) loginToPrint="You";
+                                    if(loginToPrint.equals(login)) loginToPrint="You";
                                     if(view!=null){view.updateMessages(loginToPrint+": "+ tokens[1]);}
                                     break;
                                 case Protocol.EXIT:
