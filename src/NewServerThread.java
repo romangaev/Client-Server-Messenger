@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.io.*;
+import javax.swing.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+
 
 /**
  * Initially created by Roman Gaev
@@ -34,6 +36,86 @@ public class NewServerThread extends Thread {
 
     }
 
+    // Using a Hash Set to get the usernames from the database
+    // In order to crosscheck if a new user tries to register with an existing username
+    public HashSet<String> getUsersFromDB() {
+
+        HashSet<String> allUsers = new HashSet<String>();
+
+        try {
+            String getUsers = "SELECT username FROM users;";
+            ResultSet rs = statement.executeQuery(getUsers);
+            while (rs.next()) {
+                allUsers.add(rs.getString("username"));
+            }
+
+        } catch (SQLException e) {
+//            oos.writeObject(new Message(Protocol.FALSE));
+            e.printStackTrace();
+
+        }
+
+
+        return allUsers;
+    }
+
+    public boolean checkPassword(String password) {
+
+        if(!(password.length() > 5 && password.length() < 13)) {
+            JOptionPane.showMessageDialog(new JFrame(), "Password should be between 6-12 characters.", "Password Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        char[] pw = password.toCharArray();
+        int numCount = 0;
+        int alphCount = 0;
+        for(char c : pw) {
+            if(Character.isAlphabetic(c)) {
+                alphCount++;
+            }
+            if(Character.isDigit(c)) {
+                numCount++;
+            }
+            if(!Character.isLetterOrDigit(c)) {
+                JOptionPane.showMessageDialog(new JFrame(), "Password should not include any special characters", "Password Error", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        }
+        if(!(alphCount >= 1 && numCount >= 1)) {
+            JOptionPane.showMessageDialog(new JFrame(), "Your password should include at least 1 numeric and 1 alphabetic letter.", "Password Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+    return true;
+
+    }
+
+    // Method for checking restrictions in name
+    public boolean checkName(String name) {
+
+        // The name should be 2-40 characters long
+        if(!(name.length() < 40 && name.length() > 2)) {
+            JOptionPane.showMessageDialog(new JFrame(), "Name should be between 2-40 characters long.", "Name Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // The name should not contain numbers
+        char[] nameArray = name.toCharArray();
+        for(char c : nameArray) {
+            if(Character.isDigit(c)) {
+                JOptionPane.showMessageDialog(new JFrame(), "Name should not include any numbers.", "Name Error", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+
+            // The name should not contain any special characters, whitespace is allowed
+            if(!Character.isWhitespace(c)){
+                if(!Character.isLetterOrDigit(c)) {
+                    JOptionPane.showMessageDialog(new JFrame(), "Name should not include any special characters", "Name Error", JOptionPane.WARNING_MESSAGE);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     //communication of the thread with one particular client
     public void run() {
@@ -55,20 +137,28 @@ public class NewServerThread extends Thread {
                 protocol.processInput(userMessage);
             }
 
-
         } catch (Exception e) {
             e.printStackTrace();
+
         } finally {
             try {
                 ois.close();
                 oos.close();
                 client.close();
-            } catch (IOException io) {
+            }
+
+            // does not work, there is a EOFException thrown
+            catch(EOFException eof){
+                eof.printStackTrace();
+            }
+            catch (IOException io) {
                 System.err.println("Couldn't close server socket" +
                         io.getMessage());
             }
         }
     }
+
+
 
     public void sendMessage(Message message) {
         try {
@@ -89,7 +179,6 @@ public class NewServerThread extends Thread {
         }
     }
 
-
     // Array to check if every single character of the username is a letter
     public boolean checkForLetter(char[] charArray) {
 
@@ -102,39 +191,71 @@ public class NewServerThread extends Thread {
     }
 
     public void register(String username, String password, String legalname) throws IOException {
-        try {
-            statement.executeQuery("SELECT\n" +
-                    "    table_schema || '.' || table_name\n" +
-                    "FROM\n" +
-                    "    information_schema.tables\n" +
-                    "WHERE\n" +
-                    "    table_type = 'BASE TABLE'\n" +
-                    "AND\n" +
-                    "    table_schema NOT IN ('pg_catalog', 'information_schema');");
-            ResultSet rs = statement.executeQuery("SELECT MAX(id) FROM users");
-            rs.next();
-            int nextId = rs.getInt(1) + 1;
 
+        // Creating the hashset
+        HashSet<String> allUsers = getUsersFromDB();
 
-            char[] userChars = username.toCharArray();
-            char[] passwordChars = password.toCharArray();
+//        do {
+            try {
+                statement.executeQuery("SELECT\n" +
+                        "    table_schema || '.' || table_name\n" +
+                        "FROM\n" +
+                        "    information_schema.tables\n" +
+                        "WHERE\n" +
+                        "    table_type = 'BASE TABLE'\n" +
+                        "AND\n" +
+                        "    table_schema NOT IN ('pg_catalog', 'information_schema');");
+                ResultSet rs = statement.executeQuery("SELECT MAX(id) FROM users");
+                rs.next();
+                int nextId = rs.getInt(1) + 1;
 
-            // Checking if a username only contains alphabetical characters based on the checkForLetter method
-            // Checking if a username length is between 5-10 characters long
-            if (!checkForLetter(userChars) || username.length() < 5 || username.length() > 11) {
-                JOptionPane.showMessageDialog(new JFrame(), "Your username should not be empty. \nThe length should be 5-10 characters " +
-                        "long. \nYour username should only contain letters!", "Username Error", JOptionPane.WARNING_MESSAGE);
-//            } else if (){
+                char[] userChars = username.toCharArray();
 
+                // Throwing a pane, warning the user that the username should be at least 5-10 characters long
+                if (!checkForLetter(userChars) || username.length() < 5 || username.length() > 11) {
+                    JOptionPane.showMessageDialog(new JFrame(), "Your username should not be empty. \nThe length should be 5-10 characters " +
+                            "long. \nYour username should only contain letters!", "Username Error", JOptionPane.WARNING_MESSAGE);
+                    oos.writeObject(new Message(Protocol.FALSE));
+
+                    //Checking if the user who tries to sign up, picks a username different than the usernames in the database
+                } else if (allUsers.contains(username)) {
+                    JOptionPane.showMessageDialog(new JFrame(), "Username already exists!", "Error",
+                            JOptionPane.WARNING_MESSAGE);
+                    oos.writeObject(new Message(Protocol.FALSE));
+
+                } else if(!checkPassword(password) || !checkName(legalname)) {
+                    oos.writeObject(new Message(Protocol.FALSE));
+
+                } else {
+                    statement.executeUpdate("INSERT INTO users VALUES ('" + nextId + "','" + username + "','" + password + "','" + legalname + "')");
+                    oos.writeObject(new Message(Protocol.TRUE));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                oos.writeObject(new Message(Protocol.FALSE));
             }
 
-            statement.executeUpdate("INSERT INTO users VALUES ('" + nextId + "','" + username + "','" + password + "','" + legalname + "')");
-            oos.writeObject(new Message(Protocol.TRUE));
-        } catch (SQLException e) {
-            e.printStackTrace();
-            oos.writeObject(new Message(Protocol.FALSE));
-        }
+//        } while ();
     }
+
+
+    // Checking if user is online
+//    public int getOnline(String username){
+//        int stat = 0;
+//        try{
+//
+//            String getStat = "SELECT online FROM users WHERE username="+username+";";
+//            ResultSet rs =  statement.executeQuery(getStat);
+//            if(rs.next()){
+//                stat = rs.getInt("online");
+//            }
+//        }
+//        catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
 
     public void login(String username, String password) throws IOException {
         try {

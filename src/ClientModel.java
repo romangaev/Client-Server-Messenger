@@ -1,5 +1,3 @@
-
-
 import java.io.*;
 import java.net.Socket;
 import java.util.Observable;
@@ -51,6 +49,8 @@ public class ClientModel extends Observable {
         return false;
 
     }
+
+
     public boolean login(String username, String password) {
         try {
             oos.writeObject(new Message(Protocol.LOGIN, new String[]{username,password}));

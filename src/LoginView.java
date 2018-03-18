@@ -12,6 +12,7 @@ public class LoginView extends JFrame {
     private ClientModel client;
     JTextField loginField;
     JPasswordField passwordField;
+    public static JButton confirmButton;
     private JLabel stateLabel = new JLabel("Loading...");
     private JPanel cardsPanel;
     Font titleFont = new Font("Script MT Bold", Font.BOLD, 30); // font for the title
@@ -21,7 +22,7 @@ public class LoginView extends JFrame {
         super("Login/Sign up");
 
         //Set up client
-        client = new ClientModel("localhost", 6000);
+        client = new ClientModel("localhost", 6006);
         if (!client.connect()) stateLabel.setText("Error: unable to connect!");
         else stateLabel.setText("Connection is established");
         //Set up GUI
@@ -91,7 +92,7 @@ public class LoginView extends JFrame {
         });
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                client = new ClientModel("localhost", 6000);
+                client = new ClientModel("localhost", 6006);
                 if (!client.connect()) stateLabel.setText("Error: still unable to connect!");
                 else stateLabel.setText("Connection is established");
             }
@@ -150,7 +151,7 @@ public class LoginView extends JFrame {
 
 
         // register button
-        JButton confirmButton = new JButton("Confirm");
+        confirmButton = new JButton("Confirm");
         regPanel.add(confirmButton);
         confirmButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
