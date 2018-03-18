@@ -166,6 +166,10 @@ public class LoginView extends JFrame {
  */
                 if (client.register(loginField.getText(), String.valueOf(pwField.getPassword()), nameField.getText())) {
                     stateLabel.setText("Successfully registered! You can log in now.");
+                    loginField.setText("");
+                    pwField.setText("");
+                    pwConfirm.setText("");
+                    nameField.setText("");
                 } else stateLabel.setText("Couldn't register. Try again.");
                 CardLayout cl = (CardLayout) (cardsPanel.getLayout());
                 cl.next(cardsPanel);

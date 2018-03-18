@@ -4,6 +4,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,9 +26,13 @@ public class MainChatView extends JPanel implements ActionListener {
         this.client = client;
         client.setView(this);
 
+
+
         //initializing User lists (left side)
         userListModel = new DefaultListModel<>();
         userListUI = new JList<>(userListModel);
+
+
 
 
         //CREATING  A SPECIAL MAP CHATROOM ID - NAME
@@ -34,28 +40,32 @@ public class MainChatView extends JPanel implements ActionListener {
        client.getAllUsers().forEach(
                (key, value) -> {
                    if (value.getName().equals("private")) {
-                       String  name=null;
 
                        for(String member : value.getParticipants()){
-                           if(!member.equals(client.getLogin()))
-                               name=member;
-                           break;
+                           if(!member.equals(client.getLogin())){
+                               idNameGroups.put(member,key);
+                               break;
+                           }
                        }
 
-                       idNameGroups.put(name+" offline",key);
+
                    } else {
                        idNameGroups.put(value.getName(),key);
                    }
                }
        );
+
         for(String every : idNameGroups.keySet()){
-            userListModel.addElement(every);
+            userListModel.addElement(every+" offline");
         }
+
         listSelectionModel = userListUI.getSelectionModel();
         listSelectionModel.addListSelectionListener(
                 new SharedListSelectionHandler());
         listSelectionModel.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
+
+
 
 
         // initializing message list and list renderers stuff
@@ -79,6 +89,8 @@ public class MainChatView extends JPanel implements ActionListener {
         };
         msgList.addComponentListener(l);
 
+
+
         // initializing GUI for south panel
         JPanel south = new JPanel();
         south.setLayout(new BorderLayout());
@@ -99,6 +111,9 @@ public class MainChatView extends JPanel implements ActionListener {
         inner.add(sendButton, BorderLayout.EAST);
         south.add(inner, BorderLayout.CENTER);
 
+
+
+
         //adding to main panel
         setLayout(new BorderLayout());
         add(new JScrollPane(msgList), BorderLayout.CENTER);
@@ -111,11 +126,11 @@ public class MainChatView extends JPanel implements ActionListener {
     //Action listener for Send Button
     public void actionPerformed(ActionEvent e) {
         String text = inputField.getText();
-        int groupId = idNameGroups.get(userListUI.getSelectedValue());
+        int groupId = idNameGroups.get(userListUI.getSelectedValue().split(" ",2)[0]);
 
         if (!text.equals("") && !text.equals(" ")) {
             client.sendMessage(groupId,text);
-            msgModel.addElement("You: " + text);
+            msgModel.addElement(client.getLogin()+": " + text);
             inputField.setText("");
         } else {
             JOptionPane.showMessageDialog(new JFrame(), "You should write something!", "Error", JOptionPane.WARNING_MESSAGE);
@@ -124,17 +139,26 @@ public class MainChatView extends JPanel implements ActionListener {
 
     //methods called by client model to update lists
     public void updateOnline(String s) {
-        userListModel.removeElement(s);
+        userListModel.removeElement(s+" offline");
         userListModel.addElement(s+" online");
+
     }
 
     public void updateOffline(String s) {
         userListModel.removeElement(s+" online");
         userListModel.addElement(s+" offline");
+
     }
 
     public void updateMessages(String s) {
         msgModel.addElement(s);
+    }
+
+    public void updateHistory (ArrayList<String> history) {
+        msgModel.removeAllElements();
+        for(String message : history){
+            msgModel.addElement(message);
+        }
     }
 
 
@@ -183,7 +207,18 @@ public class MainChatView extends JPanel implements ActionListener {
 
     class SharedListSelectionHandler implements ListSelectionListener {
         public void valueChanged(ListSelectionEvent e) {
+            try {
+                if( e.getValueIsAdjusting() ) return;
+                if(userListUI.getSelectedValue()==null) userListUI.setSelectedIndex(userListModel.getSize()-1);
+                int groupId = idNameGroups.get(userListUI.getSelectedValue().split(" ",2)[0]);
+                client.getHistory(groupId);
+
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
 
         }
     }
+
+
 }

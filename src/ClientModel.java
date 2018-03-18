@@ -2,6 +2,8 @@
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 
@@ -21,6 +23,7 @@ public class ClientModel extends Observable {
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private Map<Integer,Conversation> allUsers;
+
 
     public ClientModel(String serverName, int serverPort) {
         this.serverName = serverName;
@@ -58,6 +61,7 @@ public class ClientModel extends Observable {
             oos.writeObject(new Message(Protocol.LOGIN, new String[]{username,password}));
             if (((Message) ois.readObject()).getCommand()==Protocol.TRUE){
                 login = username;
+                allUsers= new HashMap<>();
                 allUsers=(Map) ois.readObject();
                 return true;
             }
@@ -91,7 +95,12 @@ public class ClientModel extends Observable {
                                     System.out.println("client got message");
                                     String loginToPrint=tokens[0];
                                     if(loginToPrint.equals(login)) loginToPrint="You";
-                                    if(view!=null){view.updateMessages(loginToPrint+": "+ tokens[1]);}
+                                    if(view!=null){view.updateMessages(loginToPrint+": "+ tokens[2]);}
+                                    break;
+                                case Protocol.HISTORY:
+                                    ArrayList<String> messages =(ArrayList<String>)ois.readObject();
+                                    allUsers.get(Integer.valueOf(tokens[0])).getMessages().addAll(messages);
+                                    view.updateHistory(messages);
                                     break;
                                 case Protocol.EXIT:
                                     running=false;
@@ -132,6 +141,7 @@ public class ClientModel extends Observable {
     public void sendMessage(int groupId, String text) {
             try{
             oos.writeObject(new Message(Protocol.MESSAGE,new String[]{login,String.valueOf(groupId), text}));
+            allUsers.get(groupId).getMessages().add(login+": "+text);
             }catch (Exception e){e.printStackTrace();}
 
     }
@@ -151,5 +161,12 @@ public class ClientModel extends Observable {
 
     public Map<Integer, Conversation> getAllUsers() {
         return allUsers;
+    }
+
+    public void getHistory(int groupId) throws IOException {
+        //ArrayList<String> local =allUsers.get(groupId).getMessages();
+       // if(allUsers.get(groupId).getMessages().isEmpty())
+            oos.writeObject(new Message(Protocol.HISTORY, new String[] {String.valueOf(groupId)}));
+        //else view.updateHistory(local);
     }
 }
