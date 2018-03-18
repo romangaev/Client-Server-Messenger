@@ -14,7 +14,6 @@ public class Protocol {
     public static final int ONLINE=4;
     public static final int OFFLINE=5;
     public static final int HISTORY=6;
-
     public  static final int EXIT=101;
     public static final int TRUE=1;
     public static final int FALSE=0;
@@ -42,6 +41,7 @@ public class Protocol {
             case HISTORY:
                 thread.sendHistory(message.getContent()[0]);
                 break;
+
         }
 
 
