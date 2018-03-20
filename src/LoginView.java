@@ -15,13 +15,15 @@ public class LoginView extends JFrame {
     private JLabel stateLabel = new JLabel("Loading...");
     private JPanel cardsPanel;
     Font titleFont = new Font("Script MT Bold", Font.BOLD, 30); // font for the title
+    String ip = "172.22.205.64";
+    int port = 22001;
 
 
     public LoginView() {
         super("Login/Sign up");
 
         //Set up client
-        client = new ClientModel("localhost", 22001);
+        client = new ClientModel(ip, port);
         if (!client.connect()) stateLabel.setText("Error: unable to connect!");
         else stateLabel.setText("Connection is established");
         //Set up GUI
@@ -91,7 +93,7 @@ public class LoginView extends JFrame {
         });
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                client = new ClientModel("localhost", 22001);
+                client = new ClientModel(ip, port);
                 if (!client.connect()) stateLabel.setText("Error: still unable to connect!");
                 else stateLabel.setText("Connection is established");
             }
