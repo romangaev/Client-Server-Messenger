@@ -69,11 +69,6 @@ public class MainChatView extends JPanel implements ActionListener {
                }
        );
 
-
-
-
-
-
         listSelectionModel = userListUI.getSelectionModel();
         listSelectionModel.addListSelectionListener(
                 new SharedListSelectionHandler());
@@ -103,13 +98,17 @@ public class MainChatView extends JPanel implements ActionListener {
             }
         };
         msgList.addComponentListener(l);
+        JPanel east = new JPanel();
+        east.setLayout(new BorderLayout());
+        east.add(new JScrollPane(msgList), BorderLayout.CENTER);
 
 
 
-        // initializing GUI for SOUTH panel
-        JPanel south = new JPanel();
-        south.setLayout(new BorderLayout());
-        south.setBackground(Color.LIGHT_GRAY);
+
+        // initializing GUI for EAST panel
+        JPanel eastsouth = new JPanel();
+        eastsouth.setLayout(new BorderLayout());
+        eastsouth.setBackground(Color.LIGHT_GRAY);
 
         JPanel inner = new JPanel();
         inner.setLayout(new BorderLayout());
@@ -124,17 +123,18 @@ public class MainChatView extends JPanel implements ActionListener {
 
         inner.add(inputField, BorderLayout.CENTER);
         inner.add(sendButton, BorderLayout.EAST);
-        south.add(inner, BorderLayout.CENTER);
+        eastsouth.add(inner, BorderLayout.CENTER);
 
 
 
+        east.add(eastsouth, BorderLayout.SOUTH);
+        east.add(conversationInfo, BorderLayout.NORTH);
 
         //adding to main panel
         setLayout(new BorderLayout());
-        add(new JScrollPane(msgList), BorderLayout.CENTER);
+        add(east, BorderLayout.CENTER);
         add(new JScrollPane(west), BorderLayout.WEST);
-        add(south, BorderLayout.SOUTH);
-        add(conversationInfo, BorderLayout.NORTH);
+        
         createPopupMenu();
 
     }
