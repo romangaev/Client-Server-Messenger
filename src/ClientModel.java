@@ -1,5 +1,3 @@
-
-
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -8,11 +6,9 @@ import java.util.Map;
 import java.util.Observable;
 
 /**
- * Initially created by Roman Gaev
- * 26.02.2018
+ * @author Nabeel, Ali, Roman
+ *
  * Simple client model
- * <p>
- * May the force be with you.
  */
 public class ClientModel extends Observable {
     private String serverName;
@@ -56,6 +52,8 @@ public class ClientModel extends Observable {
         return false;
 
     }
+
+
     public boolean login(String username, String password) {
         try {
             oos.writeObject(new Message(Protocol.LOGIN, new String[]{username,password}));

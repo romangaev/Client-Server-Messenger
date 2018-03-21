@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -11,6 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Ioana, Ali, Nabeel
+ *
+ * The View for the main chat window
+ */
 
 public class MainChatView extends JPanel implements ActionListener {
 
@@ -25,18 +29,17 @@ public class MainChatView extends JPanel implements ActionListener {
     private JButton groupButton;
     private JLabel conversationInfo = new JLabel("LastMinuteMessenger");
     JPopupMenu popup;
+    private JButton sendButton;
+
 
     public MainChatView(ClientModel client) {
-        //initializing client for view and sending reference for that view to client
+        // Initializing client for view and sending reference for that view to client
         this.client = client;
         client.setView(this);
 
 
-
-
-
-
         //initializing User lists (left side) and WEST panel
+
         userListModel = new DefaultListModel<>();
         userListUI = new JList<>(userListModel);
         JPanel west= new JPanel();
@@ -78,7 +81,7 @@ public class MainChatView extends JPanel implements ActionListener {
 
 
 
-        // initializing message list and list renderers stuff
+        // Initializing message list and list renderers stuff
         msgModel = new DefaultListModel<>();
         msgList = new JList<String>(msgModel) {
             @Override
@@ -90,7 +93,8 @@ public class MainChatView extends JPanel implements ActionListener {
         ComponentListener l = new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                // next line possible if list is of type JXList
+
+                // Next line possible if list is of type JXList
                 // list.invalidateCellSizeCache();
                 // for core: force cache invalidation by temporarily setting fixed height
                 msgList.setFixedCellHeight(10);
@@ -118,7 +122,7 @@ public class MainChatView extends JPanel implements ActionListener {
         inputField.setLineWrap(true);
         inputField.setWrapStyleWord(true);
 
-        JButton sendButton = new JButton("Send");
+        sendButton = new JButton("Send");
         sendButton.addActionListener(this);
 
         inner.add(inputField, BorderLayout.CENTER);
@@ -138,7 +142,36 @@ public class MainChatView extends JPanel implements ActionListener {
         createPopupMenu();
 
     }
-
+//    public void delayMessage() {
+//
+//        Timer timer = new Timer(400, new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent arg0) {
+//                sendButton.setEnabled(false);
+//            }
+//        });
+//        timer.setRepeats(false);
+//        timer.start();
+//    }
+//    public void actionPerformed(ActionEvent e) {
+//
+//
+//        String text = inputField.getText();
+//
+//        // Checking if a line is empty after the first line
+//        // text.trim allows for different messages to be written in different lines
+//        text = text.trim();
+//        if (!text.equals("") && !text.equals(" ")) {
+//            client.sendMessage(text);
+//            msgModel.addElement("You: " + text);
+//            inputField.setText("");
+//
+//            // In case of an empty text entry, a popup message warns the user
+//        } else {
+//            JOptionPane.showMessageDialog(new JFrame(), "You should write something!", "Error", JOptionPane.WARNING_MESSAGE);
+//        }
+//        delayMessage();
+//    }
     //Action listener for Send Button
     public void actionPerformed(ActionEvent e) {
         if(e.getSource()==groupButton){
@@ -190,34 +223,37 @@ public class MainChatView extends JPanel implements ActionListener {
             innerframe.pack();
             innerframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
             innerframe.setVisible(true); // size is gonna be rearranged and all that random GUI
-
-
-
-
-
-
-
-
-
-
         }
         else {
             String text = inputField.getText();
             int groupId = idNameGroups.get(userListUI.getSelectedValue().split(" ", 2)[0]);
 
 
+          text = text.trim();
+                  // Checking if a line is empty after the first line
+        // text.trim allows for different messages to be written in different lines
+        
             if (!text.equals("") && !text.equals(" ")) {
                 client.sendMessage(groupId, text);
                 msgModel.addElement(client.getLogin() + ": " + text);
                 inputField.setText("");
+                // In case of an empty text entry, a popup message warns the user
             } else {
                 JOptionPane.showMessageDialog(new JFrame(), "You should write something!", "Error", JOptionPane.WARNING_MESSAGE);
             }
         }
 
+        // SPAM PREVENTION
+//        long startTime = System.currentTimeMillis();
+//        while(System.currentTimeMillis() - startTime < 401){
+//            sendButton.setEnabled(false);
+//        }
+//        sendButton.setEnabled(true);
+
+
     }
 
-    //methods called by client model to update lists
+    // Methods called by client model to update lists
     public void updateOnline(String s) {
         userListModel.removeElement(s+" offline");
         userListModel.addElement(s+" online");
@@ -250,7 +286,7 @@ public class MainChatView extends JPanel implements ActionListener {
     }
 
 
-    //render class to render appereance of lists
+    // Render class to render appearance of lists
     public class MyCellRenderer implements ListCellRenderer {
         private JPanel p;
         private JPanel iconPanel;
@@ -283,7 +319,7 @@ public class MainChatView extends JPanel implements ActionListener {
             l.setText(tokens[0]);
             ta.setText(tokens[1]);
             int width = list.getWidth();
-            // this is just to lure the ta's internal sizing mechanism into action
+            // This is just to lure the ta's internal sizing mechanism into action
             if (width > 0)
                 ta.setSize(width, Short.MAX_VALUE);
             return p;

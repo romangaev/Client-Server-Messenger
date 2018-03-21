@@ -1,11 +1,9 @@
 import java.io.IOException;
 
 /**
- * Initially created by Roman Gaev
- * 26.02.2018
+ * @author Roman & Maurice
+ *
  * Protocol for communication
- * <p>
- * May the force be with you.
  */
 public class Protocol {
     public static final int LOGIN=0;

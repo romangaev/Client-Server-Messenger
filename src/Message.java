@@ -1,4 +1,12 @@
+
 import java.io.File;
+
+/**
+ * @author Roman, Ali
+ *
+ * Implementing the Serializable interface, turns the message to binary
+ */
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 

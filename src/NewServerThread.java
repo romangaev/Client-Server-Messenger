@@ -1,14 +1,23 @@
 import java.io.*;
+
 import java.net.Socket;
 import java.sql.*;
 import java.util.*;
 
+import javax.swing.*;
+import java.net.Socket;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashSet;
+
+
 /**
- * Initially created by Roman Gaev
- * 26.02.2018
- * Server thread for every single client
- * <p>
- * May the force be with you.
+ * @author Roman, Ali, Maurice, Nabeel, Ioana
+ *
+ *  Server thread for every single client
  */
 public class NewServerThread extends Thread {
     private ServerModel server;
@@ -19,8 +28,10 @@ public class NewServerThread extends Thread {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
 
+
     //constructor with database connection and client's socket
     public NewServerThread(ServerModel server, Socket client, Connection connection) throws IOException, SQLException {
+
         super("NewServerThread");
         this.server = server;
         this.client = client;
@@ -31,6 +42,27 @@ public class NewServerThread extends Thread {
 
     }
 
+    // Using a Hash Set to get the usernames from the database
+    // In order to crosscheck if a new user tries to register with an existing username
+    public HashSet<String> getUsersFromDB() {
+
+        HashSet<String> allUsers = new HashSet<String>();
+
+        try {
+            String getUsers = "SELECT username FROM users;";
+            ResultSet rs = statement.executeQuery(getUsers);
+            while (rs.next()) {
+                allUsers.add(rs.getString("username"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+
+
+        return allUsers;
+    }
 
     //communication of the thread with one particular client
     public void run() {
@@ -42,8 +74,8 @@ public class NewServerThread extends Thread {
             //communication with the client using the protocol
             Message userMessage;
 
-            while ((userMessage =(Message) ois.readObject()) != null) {
-                if (userMessage.getCommand()==Protocol.EXIT) {
+            while ((userMessage = (Message) ois.readObject()) != null) {
+                if (userMessage.getCommand() == Protocol.EXIT) {
                     System.out.println("server got exit");
                     oos.writeObject(new Message(Protocol.EXIT));
                     logoff();
@@ -52,14 +84,19 @@ public class NewServerThread extends Thread {
                 protocol.processInput(userMessage);
             }
 
-
         } catch (Exception e) {
             e.printStackTrace();
+
         } finally {
             try {
                 ois.close();
                 oos.close();
                 client.close();
+            }
+
+            // Does not work, there is a EOFException thrown
+            catch (EOFException eof) {
+                eof.printStackTrace();
             } catch (IOException io) {
                 System.err.println("Couldn't close server socket" +
                         io.getMessage());
@@ -68,6 +105,7 @@ public class NewServerThread extends Thread {
     }
 
     //Sending message as an object and storing it in the database
+
     public void sendMessage(Message message) {
         try {
             String from = message.getContent()[0];
@@ -116,10 +154,28 @@ public class NewServerThread extends Thread {
     }
 
 
-    public void register(String username, String password, String legalName) throws IOException {
+  
+
+    // Array to check if every single character of the username is a letter
+    public boolean checkForLetter(char[] charArray) {
+
+        for (char c : charArray) {
+            if (!Character.isAlphabetic(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void register(String username, String password, String legalname) throws IOException {
+
+        // Creating the hashset
+ 
         try {
             //Creating private conversation group with every user in the database
             executePreStatement();
+            ResultSet rscheck = statement.executeQuery("SELECT * FROM users WHERE username='"+username+"'");
+            if(rscheck.next()) throws new IllegalArgumentException();
             ResultSet rsOuter = statement.executeQuery("SELECT * FROM users");
             while(rsOuter.next()) {
                 Statement statement2 = connection.createStatement();
@@ -134,16 +190,20 @@ public class NewServerThread extends Thread {
             ResultSet rs = statement.executeQuery("SELECT MAX(id) FROM users");
             rs.next();
             int nextId = rs.getInt(1) + 1;
-            statement.executeUpdate("INSERT INTO users VALUES (" + nextId + ",'" + username + "','" + password + "','" + legalName + "')");
 
+            statement.executeUpdate("INSERT INTO users VALUES (" + nextId + ",'" + username + "','" + password + "','" + legalName + "')");
             oos.writeObject(new Message(Protocol.TRUE));
+
         } catch (SQLException e) {
             e.printStackTrace();
             oos.writeObject(new Message(Protocol.FALSE));
+        } catch(IllegalArgumentException e){
+          e.printStackTrace();
+          System.out.println("Username already exists!");
+          oos.writeObject(new Message(Protocol.FALSE));
         }
+
     }
-
-
 
     public void login(String username, String password) throws IOException {
         try {
@@ -184,25 +244,27 @@ public class NewServerThread extends Thread {
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
-                                }
-                            }
-                    );
 
-                    // send other online users current user's status
-                    String login = getCurrentUser().getLogin();
-                    pool.forEach(x -> {
-                                if (x.getCurrentUser() != null && !login.equals(x.getCurrentUser().getLogin())) {
-                                    try {
-                                        x.getOut().writeObject(new Message(Protocol.ONLINE,new String[]{login}));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
                                 }
                             }
-                    );
-                } else{
-                    oos.writeObject(new Message(Protocol.FALSE));
-                }
+                        }
+                );
+
+                // Send other online users current user's status
+                String login = getCurrentUser().getLogin();
+                pool.forEach(x -> {
+                            if (x.getCurrentUser() != null && !login.equals(x.getCurrentUser().getLogin())) {
+                                try {
+                                    x.getOut().writeObject(new Message(Protocol.ONLINE, new String[]{login}));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                );
+            } else {
+                oos.writeObject(new Message(Protocol.FALSE));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             oos.writeObject(new Message(Protocol.FALSE));
@@ -219,7 +281,7 @@ public class NewServerThread extends Thread {
                     User threadUser = x.getCurrentUser();
                     if (threadUser != null) {
                         try {
-                            x.getOut().writeObject(new Message(Protocol.OFFLINE,new String[]{currentUser.getLogin()}));
+                            x.getOut().writeObject(new Message(Protocol.OFFLINE, new String[]{currentUser.getLogin()}));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -336,4 +398,5 @@ public class NewServerThread extends Thread {
 
 
     }
+
 }
