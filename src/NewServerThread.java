@@ -167,7 +167,7 @@ public class NewServerThread extends Thread {
         return true;
     }
 
-    public void register(String username, String password, String legalname) throws IOException {
+    public void register(String username, String password, String legalName) throws IOException {
 
         // Creating the hashset
  
@@ -175,7 +175,7 @@ public class NewServerThread extends Thread {
             //Creating private conversation group with every user in the database
             executePreStatement();
             ResultSet rscheck = statement.executeQuery("SELECT * FROM users WHERE username='"+username+"'");
-            if(rscheck.next()) throws new IllegalArgumentException();
+            if(rscheck.next()) throw new IllegalArgumentException();
             ResultSet rsOuter = statement.executeQuery("SELECT * FROM users");
             while(rsOuter.next()) {
                 Statement statement2 = connection.createStatement();
@@ -246,9 +246,7 @@ public class NewServerThread extends Thread {
                                     }
 
                                 }
-                            }
-                        }
-                );
+                            });
 
                 // Send other online users current user's status
                 String login = getCurrentUser().getLogin();

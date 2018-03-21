@@ -77,6 +77,7 @@ public class MainChatView extends JPanel implements ActionListener {
                 new SharedListSelectionHandler());
         listSelectionModel.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
+        userListUI.setSelectedIndex(0);
 
 
 
