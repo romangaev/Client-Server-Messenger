@@ -2,8 +2,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
+
 
 /**
  * @author Nabeel, Roman & Maurice
@@ -11,9 +13,9 @@ import java.util.Properties;
  * Simple server
  */
 public class ServerModel extends Thread {
-    private ArrayList<NewServerThread> threadPool = new ArrayList<NewServerThread>();
+    private Set<NewServerThread> threadPool = new HashSet<>();
 
-    public ArrayList<NewServerThread> getThreadPool() {
+    public Set<NewServerThread> getThreadPool() {
         return threadPool;
     }
 
@@ -23,7 +25,7 @@ public class ServerModel extends Thread {
         // Creating a server socket
         ServerSocket serverSocket=null;
         try {
-            serverSocket = new ServerSocket(6006);
+            serverSocket = new ServerSocket(22001);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,7 +52,7 @@ public class ServerModel extends Thread {
             // Waiting for new clients to come & creating new threads for each of them
             while (true) {
                 clientSocket = serverSocket.accept();
-                NewServerThread newClient = new NewServerThread(this, clientSocket, statement);
+                NewServerThread newClient = new NewServerThread(this, clientSocket, dbConnection);
                 threadPool.add(newClient);
                 newClient.start();
             }

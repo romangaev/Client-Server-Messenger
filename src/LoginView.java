@@ -17,6 +17,8 @@ public class LoginView extends JFrame {
     private JPanel cardsPanel;
 
     Font titleFont = new Font("Script MT Bold", Font.BOLD, 30); // font for the title
+    String ip = "localhost";
+    int port = 22001;
 
 
     public boolean checkPassword(char[] password) {
@@ -92,7 +94,7 @@ public class LoginView extends JFrame {
         super("Login/Sign up");
 
         //Set up client
-        client = new ClientModel("localhost", 6006);
+        client = new ClientModel(ip, port);
         if (!client.connect()) stateLabel.setText("Error: unable to connect!");
         else stateLabel.setText("Connection is established");
 
@@ -162,7 +164,9 @@ public class LoginView extends JFrame {
         });
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                client = new ClientModel("localhost", 6006);
+
+                client = new ClientModel(ip, port);
+
                 if (!client.connect()) stateLabel.setText("Error: still unable to connect!");
                 else stateLabel.setText("Connection is established");
             }
@@ -235,6 +239,7 @@ public class LoginView extends JFrame {
  return;
  }
  */
+
                 String username = loginField.getText();
                 char[] password = pwField.getPassword();
                 String legalName = nameField.getText();
@@ -264,7 +269,12 @@ public class LoginView extends JFrame {
 
                     if (checkPass && checkRest && (client.register(loginField.getText(), String.valueOf(pwField.getPassword()), nameField.getText()))) {
                         stateLabel.setText("Successfully registered! You can log in now.");
+                      loginField.setText("");
+                    pwField.setText("");
+                    pwConfirm.setText("");
+                    nameField.setText("");
                     } else stateLabel.setText("Couldn't register. Try again.");
+              
                     CardLayout cl = (CardLayout) (cardsPanel.getLayout());
                     cl.next(cardsPanel);
 
