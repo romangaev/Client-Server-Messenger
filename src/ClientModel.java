@@ -102,6 +102,25 @@ public class ClientModel extends Observable {
                                     allUsers.get(Integer.valueOf(tokens[0])).getMessages().addAll(messages);
                                     view.updateHistory(messages);
                                     break;
+                                case Protocol.CREATE_GROUP:
+                                    Integer id =(Integer) ois.readObject();
+                                    Conversation conversation = (Conversation) ois.readObject();
+
+                                    allUsers.put(id,conversation);
+                                    view.updateGroups(conversation.getName(),id);
+                                    break;
+                                case Protocol.LEAVE_GROUP:
+
+                                    String deletedLogin = userMessage.getContent()[0];
+                                int groupId = Integer.parseInt(userMessage.getContent()[1]);
+                                if(login.equals(deletedLogin)) {
+                                    view.deleteGroup(allUsers.get(groupId).getName());
+                                    allUsers.remove(groupId);
+                                    System.out.println("leaveGroup2");
+                                }
+                                else
+                                    allUsers.get(groupId).getParticipants().remove(deletedLogin);
+                                break;
                                 case Protocol.EXIT:
                                     running=false;
                                     break;
@@ -168,5 +187,25 @@ public class ClientModel extends Observable {
        // if(allUsers.get(groupId).getMessages().isEmpty())
             oos.writeObject(new Message(Protocol.HISTORY, new String[] {String.valueOf(groupId)}));
         //else view.updateHistory(local);
+    }
+
+    public void createGroup(String name, ArrayList<String> participants){
+
+        try {
+            oos.writeObject(new Message(Protocol.CREATE_GROUP));
+            oos.writeObject(new Conversation(name,participants));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void leaveGroup(int id) {
+        try {
+            oos.writeObject(new Message(Protocol.LEAVE_GROUP,new String[]{login, String.valueOf(id)}));
+            System.out.println("leaveGroup");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

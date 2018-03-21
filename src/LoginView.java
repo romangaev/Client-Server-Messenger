@@ -15,7 +15,7 @@ public class LoginView extends JFrame {
     private JLabel stateLabel = new JLabel("Loading...");
     private JPanel cardsPanel;
     Font titleFont = new Font("Script MT Bold", Font.BOLD, 30); // font for the title
-    String ip = "172.22.205.64";
+    String ip = "localhost";
     int port = 22001;
 
 

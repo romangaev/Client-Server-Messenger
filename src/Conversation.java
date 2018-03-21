@@ -11,6 +11,10 @@ import java.util.ArrayList;
          this.participants = new ArrayList<>();
          participants.add(member);
      }
+     public Conversation(String name, ArrayList<String> participants) {
+         this.name = name;
+         this.participants=participants;
+     }
 
      public String getName() {
          return name;

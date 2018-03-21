@@ -126,15 +126,15 @@ public class NewServerThread extends Thread {
                 ResultSet rsInner = statement2.executeQuery("SELECT MAX(group_id) FROM groups");
                 rsInner.next();
                 int nextGroupId = rsInner.getInt(1) + 1;
-                statement2.executeUpdate("INSERT INTO groups VALUES ('" + nextGroupId + "','private','" + rsOuter.getString(2) + "')");
-                statement2.executeUpdate("INSERT INTO groups VALUES ('" + nextGroupId + "','private','" + username + "')");
+                statement2.executeUpdate("INSERT INTO groups VALUES (" + nextGroupId + ",'private','" + rsOuter.getString(2) + "')");
+                statement2.executeUpdate("INSERT INTO groups VALUES (" + nextGroupId + ",'private','" + username + "')");
             }
 
             //Creating user in users table
             ResultSet rs = statement.executeQuery("SELECT MAX(id) FROM users");
             rs.next();
             int nextId = rs.getInt(1) + 1;
-            statement.executeUpdate("INSERT INTO users VALUES ('" + nextId + "','" + username + "','" + password + "','" + legalName + "')");
+            statement.executeUpdate("INSERT INTO users VALUES (" + nextId + ",'" + username + "','" + password + "','" + legalName + "')");
 
             oos.writeObject(new Message(Protocol.TRUE));
         } catch (SQLException e) {
@@ -264,5 +264,76 @@ public class NewServerThread extends Thread {
         } catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void createGroup(){
+        try {
+            Conversation conversation=(Conversation) ois.readObject();
+            String name = conversation.getName();
+            executePreStatement();
+            ResultSet rs = statement.executeQuery("SELECT MAX(group_id) FROM groups");
+            rs.next();
+            int nextGroupId = rs.getInt(1) + 1;
+            conversation.getParticipants().forEach(x->
+                    {
+                        try {
+                            statement.executeUpdate("INSERT INTO groups VALUES (" + nextGroupId + ",'"+ name +"','" + x + "')");
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+            );
+
+            server.getThreadPool().forEach(x -> {
+                        if (x.getCurrentUser() != null && conversation.getParticipants().contains(x.getCurrentUser().getLogin())) {
+                            try {
+                                x.getOut().writeObject(new Message(Protocol.CREATE_GROUP));
+                                x.getOut().writeObject(nextGroupId);
+                                x.getOut().writeObject(conversation);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+            );
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void leaveGroup(Message message) {
+
+        try {
+            String login = message.getContent()[0];
+            int id = Integer.valueOf(message.getContent()[1]);
+            executePreStatement();
+            ResultSet rs = statement.executeQuery("SELECT username FROM groups where group_id="+id);
+            while(rs.next()){
+                String userToSend=rs.getString(1);
+                    Set<NewServerThread> pool = server.getThreadPool();
+                    pool.forEach(x -> {
+                        String otherUser = x.getCurrentUser().getLogin();
+                        //   if(otherUser!=null&&!otherUser.getLogin().equals(currentUser.getLogin())) x.out.println(Protocol.MESSAGE +" "+currentUser.getLogin()+" "+ msg);
+                        if (otherUser.equals(userToSend)) {
+                            try {
+                                x.getOut().writeObject(message);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+            }
+            statement.executeUpdate("DELETE FROM groups WHERE group_id="+id+" AND username='"+login+"'");
+            System.out.println("leaveGroup");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }
