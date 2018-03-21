@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashSet;
+import java.util.HashSet; //
 
 
 /**
@@ -61,7 +61,7 @@ public class NewServerThread extends Thread {
 
     public boolean checkPassword(String password) {
 
-        if(!(password.length() > 5 && password.length() < 13)) {
+        if (!(password.length() > 5 && password.length() < 13)) {
             JOptionPane.showMessageDialog(new JFrame(), "Password should be between 6-12 characters.", "Password Error", JOptionPane.WARNING_MESSAGE);
             return false;
         }
@@ -69,23 +69,23 @@ public class NewServerThread extends Thread {
         char[] pw = password.toCharArray();
         int numCount = 0;
         int alphCount = 0;
-        for(char c : pw) {
-            if(Character.isAlphabetic(c)) {
+        for (char c : pw) {
+            if (Character.isAlphabetic(c)) {
                 alphCount++;
             }
-            if(Character.isDigit(c)) {
+            if (Character.isDigit(c)) {
                 numCount++;
             }
-            if(!Character.isLetterOrDigit(c)) {
+            if (!Character.isLetterOrDigit(c)) {
                 JOptionPane.showMessageDialog(new JFrame(), "Password should not include any special characters", "Password Error", JOptionPane.WARNING_MESSAGE);
                 return false;
             }
         }
-        if(!(alphCount >= 1 && numCount >= 1)) {
+        if (!(alphCount >= 1 && numCount >= 1)) {
             JOptionPane.showMessageDialog(new JFrame(), "Your password should include at least 1 numeric and 1 alphabetic letter.", "Password Error", JOptionPane.WARNING_MESSAGE);
             return false;
         }
-    return true;
+        return true;
 
     }
 
@@ -93,22 +93,22 @@ public class NewServerThread extends Thread {
     public boolean checkName(String name) {
 
         // The name should be 2-40 characters long
-        if(!(name.length() < 40 && name.length() > 2)) {
+        if (!(name.length() < 40 && name.length() > 2)) {
             JOptionPane.showMessageDialog(new JFrame(), "Name should be between 2-40 characters long.", "Name Error", JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
         // The name should not contain numbers
         char[] nameArray = name.toCharArray();
-        for(char c : nameArray) {
-            if(Character.isDigit(c)) {
+        for (char c : nameArray) {
+            if (Character.isDigit(c)) {
                 JOptionPane.showMessageDialog(new JFrame(), "Name should not include any numbers.", "Name Error", JOptionPane.WARNING_MESSAGE);
                 return false;
             }
 
             // The name should not contain any special characters, whitespace is allowed
-            if(!Character.isWhitespace(c)){
-                if(!Character.isLetterOrDigit(c)) {
+            if (!Character.isWhitespace(c)) {
+                if (!Character.isLetterOrDigit(c)) {
                     JOptionPane.showMessageDialog(new JFrame(), "Name should not include any special characters", "Name Error", JOptionPane.WARNING_MESSAGE);
                     return false;
                 }
@@ -148,16 +148,14 @@ public class NewServerThread extends Thread {
             }
 
             // does not work, there is a EOFException thrown
-            catch(EOFException eof){
+            catch (EOFException eof) {
                 eof.printStackTrace();
-            }
-            catch (IOException io) {
+            } catch (IOException io) {
                 System.err.println("Couldn't close server socket" +
                         io.getMessage());
             }
         }
     }
-
 
 
     public void sendMessage(Message message) {
@@ -196,44 +194,35 @@ public class NewServerThread extends Thread {
         HashSet<String> allUsers = getUsersFromDB();
 
 //        do {
-            try {
-                statement.executeQuery("SELECT\n" +
-                        "    table_schema || '.' || table_name\n" +
-                        "FROM\n" +
-                        "    information_schema.tables\n" +
-                        "WHERE\n" +
-                        "    table_type = 'BASE TABLE'\n" +
-                        "AND\n" +
-                        "    table_schema NOT IN ('pg_catalog', 'information_schema');");
-                ResultSet rs = statement.executeQuery("SELECT MAX(id) FROM users");
-                rs.next();
-                int nextId = rs.getInt(1) + 1;
+        try {
+            statement.executeQuery("SELECT\n" +
+                    "    table_schema || '.' || table_name\n" +
+                    "FROM\n" +
+                    "    information_schema.tables\n" +
+                    "WHERE\n" +
+                    "    table_type = 'BASE TABLE'\n" +
+                    "AND\n" +
+                    "    table_schema NOT IN ('pg_catalog', 'information_schema');");
+            ResultSet rs = statement.executeQuery("SELECT MAX(id) FROM users");
+            rs.next();
+            int nextId = rs.getInt(1) + 1;
 
-                char[] userChars = username.toCharArray();
+            char[] userChars = username.toCharArray();
 
-                // Throwing a pane, warning the user that the username should be at least 5-10 characters long
-                if (!checkForLetter(userChars) || username.length() < 5 || username.length() > 11) {
-                    JOptionPane.showMessageDialog(new JFrame(), "Your username should not be empty. \nThe length should be 5-10 characters " +
-                            "long. \nYour username should only contain letters!", "Username Error", JOptionPane.WARNING_MESSAGE);
-                    oos.writeObject(new Message(Protocol.FALSE));
-
-                    //Checking if the user who tries to sign up, picks a username different than the usernames in the database
-                } else if (allUsers.contains(username)) {
-                    JOptionPane.showMessageDialog(new JFrame(), "Username already exists!", "Error",
-                            JOptionPane.WARNING_MESSAGE);
-                    oos.writeObject(new Message(Protocol.FALSE));
-
-                } else if(!checkPassword(password) || !checkName(legalname)) {
-                    oos.writeObject(new Message(Protocol.FALSE));
-
-                } else {
-                    statement.executeUpdate("INSERT INTO users VALUES ('" + nextId + "','" + username + "','" + password + "','" + legalname + "')");
-                    oos.writeObject(new Message(Protocol.TRUE));
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            // This stays in here
+            //Checking if the user who tries to sign up, picks a username different than the usernames in the database
+            if (allUsers.contains(username)) {
+                JOptionPane.showMessageDialog(new JFrame(), "Username already exists!", "Error",
+                        JOptionPane.WARNING_MESSAGE);
                 oos.writeObject(new Message(Protocol.FALSE));
+            } else {
+                statement.executeUpdate("INSERT INTO users VALUES ('" + nextId + "','" + username + "','" + password + "','" + legalname + "')");
+                oos.writeObject(new Message(Protocol.TRUE));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            oos.writeObject(new Message(Protocol.FALSE));
+        }
 
 //        } while ();
     }
@@ -254,7 +243,6 @@ public class NewServerThread extends Thread {
 //            e.printStackTrace();
 //        }
 //    }
-
 
 
     public void login(String username, String password) throws IOException {

@@ -12,7 +12,7 @@ public class MainChatView extends JPanel implements ActionListener {
     private DefaultListModel<String> msgModel;
     private JList<String> msgList;
     private JTextArea inputField;
-
+    private JButton sendButton;
 
     public MainChatView(ClientModel client) {
         // Initializing client for view and sending reference for that view to client
@@ -58,7 +58,7 @@ public class MainChatView extends JPanel implements ActionListener {
         inputField.setLineWrap(true);
         inputField.setWrapStyleWord(true);
 
-        JButton sendButton = new JButton("Send");
+        sendButton = new JButton("Send");
         sendButton.addActionListener(this);
 
         inner.add(inputField, BorderLayout.CENTER);
@@ -78,6 +78,13 @@ public class MainChatView extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String text = inputField.getText();
 
+        // CHAT PREVENTION
+//        long startTime = System.currentTimeMillis();
+//        while(System.currentTimeMillis() - startTime < 401){
+//            sendButton.setEnabled(false);
+//        }
+//        sendButton.setEnabled(true);
+
         // Checking if a line is empty after the first line
         // text.trim allows for different messages to be written in different lines
         text = text.trim();
@@ -86,7 +93,7 @@ public class MainChatView extends JPanel implements ActionListener {
             msgModel.addElement("You: " + text);
             inputField.setText("");
 
-        // In case of an empty text entry, a popup message warns the user
+            // In case of an empty text entry, a popup message warns the user
         } else {
             JOptionPane.showMessageDialog(new JFrame(), "You should write something!", "Error", JOptionPane.WARNING_MESSAGE);
         }
