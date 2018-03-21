@@ -3,6 +3,7 @@ import java.net.Socket;
 import java.util.Observable;
 
 /**
+ * Nabeel, Ali
  * Initially created by Roman Gaev
  * 26.02.2018
  * Simple client model

@@ -1,8 +1,10 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * Ioana, Nabeel, Ali
+ */
 
 public class MainChatView extends JPanel implements ActionListener {
 
@@ -73,17 +75,40 @@ public class MainChatView extends JPanel implements ActionListener {
 
 
     }
-
+//    public void delayMessage() {
+//
+//        Timer timer = new Timer(400, new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent arg0) {
+//                sendButton.setEnabled(false);
+//            }
+//        });
+//        timer.setRepeats(false);
+//        timer.start();
+//    }
+//    public void actionPerformed(ActionEvent e) {
+//
+//
+//        String text = inputField.getText();
+//
+//        // Checking if a line is empty after the first line
+//        // text.trim allows for different messages to be written in different lines
+//        text = text.trim();
+//        if (!text.equals("") && !text.equals(" ")) {
+//            client.sendMessage(text);
+//            msgModel.addElement("You: " + text);
+//            inputField.setText("");
+//
+//            // In case of an empty text entry, a popup message warns the user
+//        } else {
+//            JOptionPane.showMessageDialog(new JFrame(), "You should write something!", "Error", JOptionPane.WARNING_MESSAGE);
+//        }
+//        delayMessage();
+//    }
     //Action listener for Send Button
     public void actionPerformed(ActionEvent e) {
         String text = inputField.getText();
 
-        // CHAT PREVENTION
-//        long startTime = System.currentTimeMillis();
-//        while(System.currentTimeMillis() - startTime < 401){
-//            sendButton.setEnabled(false);
-//        }
-//        sendButton.setEnabled(true);
 
         // Checking if a line is empty after the first line
         // text.trim allows for different messages to be written in different lines
@@ -97,6 +122,13 @@ public class MainChatView extends JPanel implements ActionListener {
         } else {
             JOptionPane.showMessageDialog(new JFrame(), "You should write something!", "Error", JOptionPane.WARNING_MESSAGE);
         }
+        // SPAM PREVENTION
+//        long startTime = System.currentTimeMillis();
+//        while(System.currentTimeMillis() - startTime < 401){
+//            sendButton.setEnabled(false);
+//        }
+//        sendButton.setEnabled(true);
+
     }
 
     // Methods called by client model to update lists

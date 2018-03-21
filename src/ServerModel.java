@@ -7,6 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
 /**
+ * Nabeel, Maurice & Roman
  * Initially created by Roman Gaev
  * 26.02.2018
  * Simple server
