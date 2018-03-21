@@ -1,21 +1,18 @@
 import java.io.*;
 import javax.swing.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashSet; //
+import java.util.HashSet;
 
 
 /**
- * Initially created by Roman Gaev
- * 26.02.2018
- * Server thread for every single client
- * <p>
- * May the force be with you.
+ * @author Roman, Ali, Maurice, Nabeel, Ioana
+ *
+ *  Server thread for every single client
  */
 public class NewServerThread extends Thread {
     private ServerModel server;
@@ -25,7 +22,7 @@ public class NewServerThread extends Thread {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
 
-    //constructor with database connection and client's socket
+    // Constructor with database connection and client's socket
     public NewServerThread(ServerModel server, Socket client, Statement statement) throws IOException {
         super("NewServerThread");
         this.server = server;
@@ -50,71 +47,12 @@ public class NewServerThread extends Thread {
             }
 
         } catch (SQLException e) {
-//            oos.writeObject(new Message(Protocol.FALSE));
             e.printStackTrace();
 
         }
 
 
         return allUsers;
-    }
-
-    public boolean checkPassword(String password) {
-
-        if (!(password.length() > 5 && password.length() < 13)) {
-            JOptionPane.showMessageDialog(new JFrame(), "Password should be between 6-12 characters.", "Password Error", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-        char[] pw = password.toCharArray();
-        int numCount = 0;
-        int alphCount = 0;
-        for (char c : pw) {
-            if (Character.isAlphabetic(c)) {
-                alphCount++;
-            }
-            if (Character.isDigit(c)) {
-                numCount++;
-            }
-            if (!Character.isLetterOrDigit(c)) {
-                JOptionPane.showMessageDialog(new JFrame(), "Password should not include any special characters", "Password Error", JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-        }
-        if (!(alphCount >= 1 && numCount >= 1)) {
-            JOptionPane.showMessageDialog(new JFrame(), "Your password should include at least 1 numeric and 1 alphabetic letter.", "Password Error", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        return true;
-
-    }
-
-    // Method for checking restrictions in name
-    public boolean checkName(String name) {
-
-        // The name should be 2-40 characters long
-        if (!(name.length() < 40 && name.length() > 2)) {
-            JOptionPane.showMessageDialog(new JFrame(), "Name should be between 2-40 characters long.", "Name Error", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-        // The name should not contain numbers
-        char[] nameArray = name.toCharArray();
-        for (char c : nameArray) {
-            if (Character.isDigit(c)) {
-                JOptionPane.showMessageDialog(new JFrame(), "Name should not include any numbers.", "Name Error", JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-
-            // The name should not contain any special characters, whitespace is allowed
-            if (!Character.isWhitespace(c)) {
-                if (!Character.isLetterOrDigit(c)) {
-                    JOptionPane.showMessageDialog(new JFrame(), "Name should not include any special characters", "Name Error", JOptionPane.WARNING_MESSAGE);
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     //communication of the thread with one particular client
@@ -147,7 +85,7 @@ public class NewServerThread extends Thread {
                 client.close();
             }
 
-            // does not work, there is a EOFException thrown
+            // Does not work, there is a EOFException thrown
             catch (EOFException eof) {
                 eof.printStackTrace();
             } catch (IOException io) {
@@ -193,7 +131,6 @@ public class NewServerThread extends Thread {
         // Creating the hashset
         HashSet<String> allUsers = getUsersFromDB();
 
-//        do {
         try {
             statement.executeQuery("SELECT\n" +
                     "    table_schema || '.' || table_name\n" +
@@ -207,9 +144,6 @@ public class NewServerThread extends Thread {
             rs.next();
             int nextId = rs.getInt(1) + 1;
 
-            char[] userChars = username.toCharArray();
-
-            // This stays in here
             //Checking if the user who tries to sign up, picks a username different than the usernames in the database
             if (allUsers.contains(username)) {
                 JOptionPane.showMessageDialog(new JFrame(), "Username already exists!", "Error",
@@ -224,7 +158,6 @@ public class NewServerThread extends Thread {
             oos.writeObject(new Message(Protocol.FALSE));
         }
 
-//        } while ();
     }
 
 
@@ -275,7 +208,7 @@ public class NewServerThread extends Thread {
                         }
                 );
 
-                // send other online users current user's status
+                // Send other online users current user's status
                 String login = getCurrentUser().getLogin();
                 pool.forEach(x -> {
                             if (x.getCurrentUser() != null && !login.equals(x.getCurrentUser().getLogin())) {

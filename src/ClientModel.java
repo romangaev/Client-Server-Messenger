@@ -3,12 +3,9 @@ import java.net.Socket;
 import java.util.Observable;
 
 /**
- * Nabeel, Ali
- * Initially created by Roman Gaev
- * 26.02.2018
+ * @author Nabeel, Ali, Roman
+ *
  * Simple client model
- * <p>
- * May the force be with you.
  */
 public class ClientModel extends Observable {
     private String serverName;

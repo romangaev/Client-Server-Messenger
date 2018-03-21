@@ -1,18 +1,14 @@
-
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
+
 /**
- * Nabeel, Maurice & Roman
- * Initially created by Roman Gaev
- * 26.02.2018
+ * @author Nabeel, Roman & Maurice
+ *
  * Simple server
- * <p>
- * May the force be with you.
  */
 public class ServerModel extends Thread {
     private ArrayList<NewServerThread> threadPool = new ArrayList<NewServerThread>();
@@ -23,14 +19,16 @@ public class ServerModel extends Thread {
 
 @Override
     public void run() {
-        //creating a server socket
+
+        // Creating a server socket
         ServerSocket serverSocket=null;
         try {
             serverSocket = new ServerSocket(6006);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //trying to establish postgres driver for database connection
+
+        // Trying to establish postgres driver for database connection
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -38,7 +36,7 @@ public class ServerModel extends Thread {
         }
 
 
-        //establishing database connection
+        // Establishing database connection
         String url = "jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk:5432/mumbai";
         Properties props = new Properties();
         props.setProperty("user", "mumbai");
@@ -49,7 +47,7 @@ public class ServerModel extends Thread {
             Statement statement = dbConnection.createStatement();
             Socket clientSocket;
 
-            //waiting for new clients to come and creating new threads for each of them
+            // Waiting for new clients to come & creating new threads for each of them
             while (true) {
                 clientSocket = serverSocket.accept();
                 NewServerThread newClient = new NewServerThread(this, clientSocket, statement);
@@ -60,6 +58,7 @@ public class ServerModel extends Thread {
             e.printStackTrace();
         }
         finally {
+
             try {
                 serverSocket.close();
             }

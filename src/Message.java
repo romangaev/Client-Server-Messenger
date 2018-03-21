@@ -1,3 +1,9 @@
+/**
+ * @author Roman, Ali
+ *
+ * Implementing the Serializable interface, turns the message to binary
+ */
+
 import java.io.Serializable;
 
 public class Message implements Serializable{
