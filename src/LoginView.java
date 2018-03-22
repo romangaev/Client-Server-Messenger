@@ -247,6 +247,12 @@ public class LoginView extends JFrame {
                 char[] userChars = username.toCharArray();
                 boolean checkRest = true;
                 boolean checkPass = true;
+                boolean checkFields = true;
+                
+                if(username.isEmpty() || password.length == 0 || cfPass.length == 0 || nameField.getText().isEmpty()){
+                    checkFields = false;
+                    JOptionPane.showMessageDialog(new JFrame(), "You should fill all the fields", "Field Error", JOptionPane.WARNING_MESSAGE);
+                }
 
                 // Checking if the two password fields are the same
                 if(!Arrays.equals(password, cfPass)){
@@ -266,8 +272,8 @@ public class LoginView extends JFrame {
 
                     }
 
-
-                    if (checkPass && checkRest && (client.register(loginField.getText(), String.valueOf(pwField.getPassword()), nameField.getText()))) {
+                    // If the restrictions are satisfied client gets registered.
+                    if (checkFields && checkPass && checkRest && (client.register(loginField.getText(), String.valueOf(pwField.getPassword()), nameField.getText()))) {
                         stateLabel.setText("Successfully registered! You can log in now.");
                       loginField.setText("");
                     pwField.setText("");
@@ -283,6 +289,7 @@ public class LoginView extends JFrame {
         regPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
         JButton backButton = new JButton("Back");
+        //Action listener for back button
         backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 CardLayout cl = (CardLayout) (cardsPanel.getLayout());
@@ -294,7 +301,10 @@ public class LoginView extends JFrame {
         return regPanel;
     }
 
-
+   
+     /**
+     * Login button's action listener is done in a nested class.
+     */
     private class loginActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             String username = loginField.getText();
