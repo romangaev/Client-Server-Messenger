@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -12,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.UIManager.*;
 
 /**
  * @author Ioana, Ali, Nabeel
@@ -36,7 +35,16 @@ public class MainChatView extends JPanel implements ActionListener {
 
 
     public MainChatView(ClientModel client) {
-
+        try {
+            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            // If Nimbus is not available, you can set the GUI to another look and feel.
+        }
         this.client = client;
         client.setView(this);
 
@@ -52,7 +60,11 @@ public class MainChatView extends JPanel implements ActionListener {
 
         groupButton = new JButton("create");
         groupButton.addActionListener(this);
-        west.add(groupButton, BorderLayout.SOUTH);
+        JPanel westsouth = new JPanel();
+        westsouth.setLayout(new BorderLayout());
+        westsouth.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        westsouth.add(groupButton, BorderLayout.CENTER);
+        west.add(westsouth,BorderLayout.SOUTH);
 
         //CREATING  A SPECIAL MAP CHATROOM ID - NAME
         idNameGroups = new HashMap<>();
@@ -152,7 +164,7 @@ public class MainChatView extends JPanel implements ActionListener {
         east.add(eastsouth, BorderLayout.SOUTH);
         JPanel eastnorth = new JPanel();
         eastnorth.setLayout(new BorderLayout());
-        JTextField searchField = new JTextField("Find");
+        JTextField searchField = new JTextField();
         searchField.getDocument().addDocumentListener(new MyDocumentListener());
         JButton searchButton = new JButton("Search");
         searchButton.addActionListener(new ActionListener() {
@@ -176,6 +188,7 @@ public class MainChatView extends JPanel implements ActionListener {
         });
 
         eastnorth.add(conversationInfo, BorderLayout.WEST);
+        conversationInfo.setFont(new Font("Arial",Font.BOLD,15));
         eastnorth.add(searchField, BorderLayout.CENTER);
         eastnorth.add(searchButton, BorderLayout.EAST);
         east.add(eastnorth, BorderLayout.NORTH);
@@ -184,8 +197,21 @@ public class MainChatView extends JPanel implements ActionListener {
          * MAIN PANEL
          */
         setLayout(new BorderLayout());
-        add(east, BorderLayout.CENTER);
-        add(new JScrollPane(west), BorderLayout.WEST);
+
+        JPanel bigBorder = new JPanel();
+        bigBorder.setLayout(new BorderLayout());
+        bigBorder.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        bigBorder.add(east, BorderLayout.CENTER);
+        bigBorder.add(new JScrollPane(west), BorderLayout.WEST);
+        JLabel appTitle = new JLabel("LastMinuteMessenger");
+        appTitle.setOpaque(true);
+        appTitle.setBackground(new Color(2, 136, 209));
+        appTitle.setForeground(Color.white);
+        appTitle.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        appTitle.setFont(new Font("Forte", Font.PLAIN, 15));
+        add(appTitle,BorderLayout.NORTH);
+        add(bigBorder,BorderLayout.CENTER);
         createPopupMenu();
     }
 
@@ -210,8 +236,6 @@ public class MainChatView extends JPanel implements ActionListener {
             main.setLayout(new BorderLayout());
 
             JPanel panel = new JPanel(new BorderLayout());
-            Border border = BorderFactory.createTitledBorder("User List");
-            panel.setBorder(border);
             JButton submitButton = new JButton("Create");
             JTextField nameGroup = new JTextField("Name your group");
             panel.add(nameGroup, BorderLayout.NORTH);
@@ -321,11 +345,13 @@ public class MainChatView extends JPanel implements ActionListener {
             ta2.setLineWrap(true);
             ta2.setWrapStyleWord(true);
             ta = new JEditorPane("text/html", "");
+            ta.setFont(new Font("Arial",Font.BOLD,15));
             JPanel taPanel = new JPanel();
             taPanel.setLayout(new BorderLayout());
             taPanel.add(ta,BorderLayout.WEST);
             taPanel.add(ta2,BorderLayout.CENTER);
             p.add(taPanel, BorderLayout.CENTER);
+            p.add(new JSeparator(SwingConstants.HORIZONTAL),BorderLayout.SOUTH);
         }
 
         @Override

@@ -16,7 +16,7 @@ public class LoginView extends JFrame {
     private JLabel stateLabel = new JLabel("Loading...");
     private JPanel cardsPanel;
 
-    Font titleFont = new Font("Script MT Bold", Font.BOLD, 30); // font for the title
+    Font titleFont = new Font("Arial Nova", Font.PLAIN, 30); // font for the title
     String ip = "localhost";
     int port = 22001;
 
@@ -92,6 +92,16 @@ public class LoginView extends JFrame {
 
     public LoginView() {
         super("Login/Sign up");
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            // If Nimbus is not available, you can set the GUI to another look and feel.
+        }
 
         //Set up client
         client = new ClientModel(ip, port);
@@ -105,11 +115,13 @@ public class LoginView extends JFrame {
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+        mainPanel.setBackground(Color.white);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 50, 30));
         mainPanel.add(cardsPanel);
-        mainPanel.add(stateLabel);
-        add(mainPanel);
-        setSize(500, 400);
+        setLayout(new BorderLayout());
+        add(mainPanel,BorderLayout.CENTER);
+        add(stateLabel, BorderLayout.SOUTH);
+        pack();
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
@@ -119,10 +131,12 @@ public class LoginView extends JFrame {
     public JPanel buildLogPanel() {
         JPanel logPanel = new JPanel();
         logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.Y_AXIS));
+        logPanel.setBackground(Color.white);
 
-        JLabel welcomeLabel = new JLabel("<html>Welcome to<br> Messenger!</html>", SwingConstants.CENTER);
-        welcomeLabel.setFont(titleFont); // set the font
-        welcomeLabel.setForeground(Color.GRAY); // set the color
+        //JLabel welcomeLabel = new JLabel("<html>Welcome to<br> Messenger!</html>", SwingConstants.CENTER);
+        JLabel welcomeLabel = new JLabel(new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/logo.png"));
+        //welcomeLabel.setFont(titleFont); // set the font
+        //welcomeLabel.setForeground(Color.GRAY); // set the color
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 
@@ -142,7 +156,7 @@ public class LoginView extends JFrame {
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         logPanel.add(welcomeLabel);
-        logPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        logPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         logPanel.add(loginField);
         logPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         logPanel.add(passwordField);
@@ -180,6 +194,7 @@ public class LoginView extends JFrame {
     public JPanel buildRegPanel() {
         JPanel regPanel = new JPanel();
         regPanel.setLayout(new BoxLayout(regPanel, BoxLayout.Y_AXIS));
+        regPanel.setBackground(Color.white);
 
         JLabel registerLabel = new JLabel("<html>Enter your registration<br>details: </html>");
         registerLabel.setFont(titleFont); // set the font
@@ -304,7 +319,7 @@ public class LoginView extends JFrame {
                 JFrame frame = new JFrame("Messenger" + " - " + client.getLogin());
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.add(panel);
-                frame.pack();
+                frame.setSize(700,500);
                 frame.setResizable(true);
                 frame.setVisible(true);
                 frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
