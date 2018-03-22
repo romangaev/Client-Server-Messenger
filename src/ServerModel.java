@@ -25,7 +25,7 @@ public class ServerModel extends Thread {
         // Creating a server socket
         ServerSocket serverSocket=null;
         try {
-            serverSocket = new ServerSocket(22001);
+            serverSocket = new ServerSocket(6000);
         } catch (IOException e) {
             e.printStackTrace();
         }

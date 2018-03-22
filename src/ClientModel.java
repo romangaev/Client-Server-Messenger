@@ -10,7 +10,7 @@ import java.util.Observable;
  *
  * Simple client model
  */
-public class ClientModel extends Observable {
+public class ClientModel {
     private String serverName;
     private int serverPort;
     private Socket serverSocket;
@@ -128,11 +128,7 @@ public class ClientModel extends Observable {
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    try {
-                        serverSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    System.exit(1);
                 }
             }
         }.start();
@@ -149,8 +145,12 @@ public class ClientModel extends Observable {
             oos.close();
             ois.close();
             serverSocket.close();
+
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        finally {
+            System.exit(1);
         }
     }
 

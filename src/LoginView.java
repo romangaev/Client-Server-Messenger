@@ -18,7 +18,7 @@ public class LoginView extends JFrame {
 
     Font titleFont = new Font("Arial Nova", Font.PLAIN, 30); // font for the title
     String ip = "localhost";
-    int port = 22001;
+    int port = 6000;
 
 
     public boolean checkPassword(char[] password) {
@@ -91,6 +91,7 @@ public class LoginView extends JFrame {
     }
 
     public LoginView() {
+
         super("Login/Sign up");
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -140,7 +141,7 @@ public class LoginView extends JFrame {
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 
-        loginField = new JTextField();
+        loginField = new JTextField("Username");
         loginField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         passwordField = new JPasswordField();
