@@ -312,7 +312,7 @@ public class MainChatView extends JPanel implements ActionListener {
             setOpaque(true);
             // icon
             iconPanel = new JPanel(new BorderLayout());
-            l = new JLabel(new ImageIcon("C:\\Users\\RomanG\\Desktop\\Chat\\src\\message-group.png")); // <-- this will be an icon instead of a
+            l = new JLabel(new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/message-group.png")); // <-- this will be an icon instead of a
             // text
             iconPanel.add(l, BorderLayout.NORTH);
             p.add(iconPanel, BorderLayout.WEST);
