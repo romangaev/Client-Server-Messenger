@@ -80,6 +80,15 @@ public class ClientModel {
                     while ((running&& (userMessage =(Message) ois.readObject()) != null)) {
                         String[] tokens = userMessage.getContent();
                             switch(userMessage.getCommand()){
+                                case Protocol.REGISTER:
+                                    if(view!=null){
+                                        Conversation c = (Conversation)ois.readObject();
+                                        allUsers.put(Integer.valueOf(tokens[0]),c);
+                                        view.updateRegister(Integer.valueOf(tokens[0]), tokens[1]);
+
+                                    }
+                                    System.out.println("client got info about new user created");
+                                    break;
                                 case Protocol.ONLINE:
                                     if(view!=null){view.updateOnline(tokens[0]);}
                                     System.out.println("client got online");
@@ -93,7 +102,7 @@ public class ClientModel {
                                     System.out.println("client got message");
                                     String loginToPrint=tokens[0];
                                     if(loginToPrint.equals(login)) loginToPrint="You";
-                                    if(view!=null){view.updateMessages(loginToPrint+": "+ tokens[2]);}
+                                    if(view!=null){view.updateMessages(loginToPrint,tokens[2]);}
                                     break;
                                 case Protocol.HISTORY:
                                     ArrayList<String> messages =(ArrayList<String>)ois.readObject();
@@ -110,7 +119,7 @@ public class ClientModel {
                                 case Protocol.LEAVE_GROUP:
 
                                     String deletedLogin = userMessage.getContent()[0];
-                                int groupId = Integer.parseInt(userMessage.getContent()[1]);
+                                    int groupId = Integer.parseInt(userMessage.getContent()[1]);
                                 if(login.equals(deletedLogin)) {
                                     view.deleteGroup(allUsers.get(groupId).getName());
                                     allUsers.remove(groupId);

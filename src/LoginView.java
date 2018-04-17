@@ -92,7 +92,7 @@ public class LoginView extends JFrame {
 
     public LoginView() {
 
-        super("Login/Sign up");
+        /*super("Login/Sign up");
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -103,6 +103,7 @@ public class LoginView extends JFrame {
         } catch (Exception e) {
             // If Nimbus is not available, you can set the GUI to another look and feel.
         }
+        */
 
         //Set up client
         client = new ClientModel(ip, port);
@@ -141,7 +142,7 @@ public class LoginView extends JFrame {
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 
-        loginField = new JTextField("Username");
+        loginField = new JTextField();
         loginField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         passwordField = new JPasswordField();

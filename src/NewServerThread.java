@@ -176,14 +176,32 @@ public class NewServerThread extends Thread {
             executePreStatement();
             ResultSet rscheck = statement.executeQuery("SELECT * FROM users WHERE username='"+username+"'");
             if(rscheck.next()) throw new IllegalArgumentException();
+            oos.writeObject(new Message(Protocol.TRUE));
             ResultSet rsOuter = statement.executeQuery("SELECT * FROM users");
             while(rsOuter.next()) {
                 Statement statement2 = connection.createStatement();
                 ResultSet rsInner = statement2.executeQuery("SELECT MAX(group_id) FROM groups");
                 rsInner.next();
                 int nextGroupId = rsInner.getInt(1) + 1;
-                statement2.executeUpdate("INSERT INTO groups VALUES (" + nextGroupId + ",'private','" + rsOuter.getString(2) + "')");
+                String otherUser =rsOuter.getString(2);
+                statement2.executeUpdate("INSERT INTO groups VALUES (" + nextGroupId + ",'private','" + otherUser + "')");
                 statement2.executeUpdate("INSERT INTO groups VALUES (" + nextGroupId + ",'private','" + username + "')");
+
+                //send all online users info about new user
+                Set<NewServerThread> pool = server.getThreadPool();
+                pool.forEach(x -> {
+                            if (x.getCurrentUser()!=null&&x.getCurrentUser().getLogin().equals(otherUser)) {
+                                try {
+                                    x.getOut().writeObject(new Message(Protocol.REGISTER,new String[]{String.valueOf(nextGroupId),username}));
+                                    x.getOut().writeObject(new Conversation("private", new ArrayList<String>(Arrays.asList(username,otherUser))));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                );
+
+
             }
 
             //Creating user in users table
@@ -192,7 +210,10 @@ public class NewServerThread extends Thread {
             int nextId = rs.getInt(1) + 1;
 
             statement.executeUpdate("INSERT INTO users VALUES (" + nextId + ",'" + username + "','" + password + "','" + legalName + "')");
-            oos.writeObject(new Message(Protocol.TRUE));
+
+
+
+
 
         } catch (SQLException e) {
             e.printStackTrace();
