@@ -1,3 +1,6 @@
+package client;
+
+import supplementary.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -5,7 +8,12 @@ import java.util.Arrays;
 import javax.swing.*;
 
 /**
- * @author Ioana Avirvarei GUI for login, register and chat page
+ * @author Ioana Avirvarei, Roman Gaev
+ *
+ * client.LoginView class represents initial GUI View with Login and Registration pages allocated in one frame by CardLayout.
+ * Once successfully logged in it proceeds user to a client.MainChatView.
+ *
+ * version 18.04.2018
  */
 public class LoginView extends JFrame {
 
@@ -13,86 +21,18 @@ public class LoginView extends JFrame {
     JTextField loginField;
     JPasswordField passwordField;
     public static JButton confirmButton;
+    //stateLabel - label to present current application state(on the bottom of the frame)
     private JLabel stateLabel = new JLabel("Loading...");
     private JPanel cardsPanel;
 
-    Font titleFont = new Font("Arial Nova", Font.PLAIN, 30); // font for the title
     String ip = "localhost";
     int port = 6000;
 
-
-    public boolean checkPassword(char[] password) {
-
-        if(!(password.length > 5 && password.length < 13)) {
-            JOptionPane.showMessageDialog(new JFrame(), "Password should be between 6-12 characters.", "Password Error", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-
-        int numCount = 0;
-        int alphCount = 0;
-        for(char c : password) {
-            if(Character.isAlphabetic(c)) {
-                alphCount++;
-            }
-            if(Character.isDigit(c)) {
-                numCount++;
-            }
-            if(!Character.isLetterOrDigit(c)) {
-                JOptionPane.showMessageDialog(new JFrame(), "Password should not include any special characters", "Password Error", JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-        }
-        if(!(alphCount >= 1 && numCount >= 1)) {
-            JOptionPane.showMessageDialog(new JFrame(), "Your password should include at least 1 numeric and 1 alphabetic letter.", "Password Error", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        return true;
-
-    }
-
-    // Method for checking restrictions in name
-    public boolean checkName(String name) {
-
-        // The name should be 2-40 characters long
-        if(!(name.length() < 40 && name.length() > 2)) {
-            JOptionPane.showMessageDialog(new JFrame(), "Name should be between 2-40 characters long.", "Name Error", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-
-        // The name should not contain numbers
-        char[] nameArray = name.toCharArray();
-        for(char c : nameArray) {
-            if(Character.isDigit(c)) {
-                JOptionPane.showMessageDialog(new JFrame(), "Name should not include any numbers.", "Name Error", JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
-
-            // The name should not contain any special characters, whitespace is allowed
-            if(!Character.isWhitespace(c)){
-                if(!Character.isLetterOrDigit(c)) {
-                    JOptionPane.showMessageDialog(new JFrame(), "Name should not include any special characters", "Name Error", JOptionPane.WARNING_MESSAGE);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    // Array to check if every single character of the username is a letter
-    public boolean checkForLetter(char[] charArray) {
-
-        for (char c : charArray) {
-            if (!Character.isAlphabetic(c)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
+    //Constructor with kicking off methods and panels
     public LoginView() {
-
         super("Login/Sign up");
+
+        //Trying to establish pretty UI if possible
         UIManager.put("nimbusBase", Color.DARK_GRAY);
         UIManager.put("nimbusBlueGrey", Color.LIGHT_GRAY);
         UIManager.put("control", Color.DARK_GRAY);
@@ -104,7 +44,8 @@ public class LoginView extends JFrame {
                 }
             }
         } catch (Exception e) {
-            // If Nimbus is not available, you can set the GUI to another look and feel.
+            System.out.println("client.LoginView: Unable to set up Nimbus as Look and Feel!");
+            e.printStackTrace();
         }
 
         //Set up client
@@ -123,7 +64,7 @@ public class LoginView extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 50, 30));
         mainPanel.add(cardsPanel);
         setLayout(new BorderLayout());
-        add(mainPanel,BorderLayout.CENTER);
+        add(mainPanel, BorderLayout.CENTER);
         add(stateLabel, BorderLayout.SOUTH);
         pack();
         setResizable(false);
@@ -132,17 +73,17 @@ public class LoginView extends JFrame {
     }
 
 
+    //Build one of the panels for CardLayout - Log in page
     public JPanel buildLogPanel() {
         JPanel logPanel = new JPanel();
         logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.Y_AXIS));
         logPanel.setBackground(Color.DARK_GRAY);
 
         //JLabel welcomeLabel = new JLabel("<html>Welcome to<br> Messenger!</html>", SwingConstants.CENTER);
-        JLabel welcomeLabel = new JLabel(new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/logo2.png"));
+        JLabel welcomeLabel = new JLabel(new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "/client/logo2.png"));
         //welcomeLabel.setFont(titleFont); // set the font
         //welcomeLabel.setForeground(Color.GRAY); // set the color
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
 
         loginField = new JTextField();
         loginField.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -175,14 +116,15 @@ public class LoginView extends JFrame {
         logPanel.add(connectButton);
         logPanel.add(Box.createRigidArea(new Dimension(0, 50)));
 
-
         loginButton.addActionListener(new loginActionListener());
+
         registerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 CardLayout cl = (CardLayout) (cardsPanel.getLayout());
                 cl.next(cardsPanel);
             }
         });
+
         connectButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
 
@@ -193,24 +135,24 @@ public class LoginView extends JFrame {
             }
         });
 
-
         return logPanel;
     }
 
-
+    //Build one of the panels for CardLayout - registration page
     public JPanel buildRegPanel() {
         JPanel regPanel = new JPanel();
         regPanel.setLayout(new BoxLayout(regPanel, BoxLayout.Y_AXIS));
-        regPanel.setBackground(Color.white);
+        regPanel.setBackground(Color.DARK_GRAY);
 
         JLabel registerLabel = new JLabel("<html>Enter your registration<br>details: </html>");
-        registerLabel.setFont(titleFont); // set the font
-        registerLabel.setForeground(Color.GRAY); // set the color
+        registerLabel.setFont(new Font("Rockwell", Font.PLAIN, 30)); // set the font
+        registerLabel.setForeground(Color.WHITE); // set the color
         regPanel.add(registerLabel, BorderLayout.NORTH);
-        regPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        regPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         // for username
         JLabel userLabel = new JLabel("Username"); // chooseusernameLabel
+        userLabel.setForeground(Color.LIGHT_GRAY);
         regPanel.add(userLabel);
         regPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
@@ -220,6 +162,7 @@ public class LoginView extends JFrame {
 
         // for password
         JLabel passwordLabel = new JLabel("Password");
+        passwordLabel.setForeground(Color.LIGHT_GRAY);
         regPanel.add(passwordLabel);
         regPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
@@ -229,6 +172,7 @@ public class LoginView extends JFrame {
 
         // for confirm password
         JLabel confirmPasswordLabel = new JLabel("Confirm password");
+        confirmPasswordLabel.setForeground(Color.LIGHT_GRAY);
         regPanel.add(confirmPasswordLabel);
         regPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
@@ -238,30 +182,19 @@ public class LoginView extends JFrame {
 
         // for name
         JLabel nameLabel = new JLabel("Name");
+        nameLabel.setForeground(Color.LIGHT_GRAY);
         regPanel.add(nameLabel);
         regPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
         JTextField nameField = new JTextField(20);
         regPanel.add(nameField);
-        regPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-
+        regPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         // register button
         confirmButton = new JButton("Confirm");
         regPanel.add(confirmButton);
         confirmButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-/**
- if(!String.valueOf(pwField.getPassword()).equals(String.valueOf(pwConfirm.getPassword()))) {
- stateLabel.setText("Password and confirmation are not equal! Check again!");
- return;
- }
- if(pwField.getPassword().length==0 && pwConfirm.getPassword().length==0 && nameField.getText().equals("")&& loginField.getText().equals("")) {
- stateLabel.setText("You should fill all fields in the form!");
- return;
- }
- */
-
                 String username = loginField.getText();
                 char[] password = pwField.getPassword();
                 String legalName = nameField.getText();
@@ -270,47 +203,45 @@ public class LoginView extends JFrame {
                 boolean checkRest = true;
                 boolean checkPass = true;
                 boolean checkFields = true;
-                
-                if(username.isEmpty() || password.length == 0 || cfPass.length == 0 || nameField.getText().isEmpty()){
+
+                if (username.isEmpty() || password.length == 0 || cfPass.length == 0 || nameField.getText().isEmpty()) {
                     checkFields = false;
                     JOptionPane.showMessageDialog(new JFrame(), "You should fill all the fields", "Field Error", JOptionPane.WARNING_MESSAGE);
                 }
 
                 // Checking if the two password fields are the same
-                if(!Arrays.equals(password, cfPass)){
+                if (!Arrays.equals(password, cfPass)) {
                     checkPass = false;
                     JOptionPane.showMessageDialog(new JFrame(), "Password fields should be the same!", "Confirmation Error", JOptionPane.WARNING_MESSAGE);
                 }
 
-                    // Throwing a pane, warning the user that the username should be at least 5-10 characters long
-                    if (!checkForLetter(userChars) || username.length() < 5 || username.length() > 11) {
-                        JOptionPane.showMessageDialog(new JFrame(), "Your username should not be empty. \nThe length should be 5-10 characters " +
-                                "long. \nYour username should only contain letters!", "Username Error", JOptionPane.WARNING_MESSAGE);
-                        checkRest = false;
-                        
-                        // Checking if the password and the legalName field are valid
-                    } else if (!checkPassword(password) || !checkName(legalName)) {
-                        checkRest = false;
+                // Throwing a pane, warning the user that the username should be at least 5-10 characters long
+                if (!checkForLetter(userChars) || username.length() < 5 || username.length() > 11) {
+                    JOptionPane.showMessageDialog(new JFrame(), "Your username should not be empty. \nThe length should be 5-10 characters " +
+                            "long. \nYour username should only contain letters!", "Username Error", JOptionPane.WARNING_MESSAGE);
+                    checkRest = false;
 
-                    }
+                    // Checking if the password and the legalName field are valid
+                } else if (!checkPassword(password) || !checkName(legalName)) {
+                    checkRest = false;
+                }
 
-                    // If the restrictions are satisfied client gets registered.
-                    if (checkFields && checkPass && checkRest && (client.register(loginField.getText(), String.valueOf(pwField.getPassword()), nameField.getText()))) {
-                        stateLabel.setText("Successfully registered! You can log in now.");
-                      loginField.setText("");
+                // If the restrictions are satisfied client gets registered.
+                if (checkFields && checkPass && checkRest && (client.register(loginField.getText(), String.valueOf(pwField.getPassword()), nameField.getText()))) {
+                    stateLabel.setText("Successfully registered! You can log in now.");
+                    loginField.setText("");
                     pwField.setText("");
                     pwConfirm.setText("");
                     nameField.setText("");
-                    } else stateLabel.setText("Couldn't register. Try again.");
-              
-                    CardLayout cl = (CardLayout) (cardsPanel.getLayout());
-                    cl.next(cardsPanel);
+                } else stateLabel.setText("Couldn't register. Try again.");
 
+                CardLayout cl = (CardLayout) (cardsPanel.getLayout());
+                cl.next(cardsPanel);
             }
         });
         regPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        JButton backButton = new JButton("   Back   ");
 
-        JButton backButton = new JButton("Back");
         //Action listener for back button
         backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
@@ -323,10 +254,7 @@ public class LoginView extends JFrame {
         return regPanel;
     }
 
-   
-     /**
-     * Login button's action listener is done in a nested class.
-     */
+    //Login button's action listener is done in a nested class.
     private class loginActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             String username = loginField.getText();
@@ -336,7 +264,7 @@ public class LoginView extends JFrame {
                 JFrame frame = new JFrame("Messenger" + " - " + client.getLogin());
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.add(panel);
-                frame.setSize(700,500);
+                frame.setSize(700, 500);
                 frame.setResizable(true);
                 frame.setVisible(true);
                 frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -363,17 +291,80 @@ public class LoginView extends JFrame {
             } else {
                 // show error message
                 stateLabel.setText("Couldn't login! Try again.");
-
             }
-
         }
-
     }
 
 
+    /**
+     * SOME SUPPLEMENTARY METHODS FOR CHECKS
+     */
+    //checkPassword is a supplementary method to validate password in registration process
+    public boolean checkPassword(char[] password) {
+        if (!(password.length > 5 && password.length < 13)) {
+            JOptionPane.showMessageDialog(new JFrame(), "Password should be between 6-12 characters.", "Password Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        int numCount = 0;
+        int alphCount = 0;
+        for (char c : password) {
+            if (Character.isAlphabetic(c)) alphCount++;
+            if (Character.isDigit(c)) numCount++;
+            if (!Character.isLetterOrDigit(c)) {
+                JOptionPane.showMessageDialog(new JFrame(), "Password should not include any special characters", "Password Error", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        }
+        if (!(alphCount >= 1 && numCount >= 1)) {
+            JOptionPane.showMessageDialog(new JFrame(), "Your password should include at least 1 numeric and 1 alphabetic letter.", "Password Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    // Method for checking restrictions in name
+    public boolean checkName(String name) {
+
+        // The name should be 2-40 characters long
+        if (!(name.length() < 40 && name.length() > 2)) {
+            JOptionPane.showMessageDialog(new JFrame(), "Name should be between 2-40 characters long.", "Name Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // The name should not contain numbers
+        char[] nameArray = name.toCharArray();
+        for (char c : nameArray) {
+            if (Character.isDigit(c)) {
+                JOptionPane.showMessageDialog(new JFrame(), "Name should not include any numbers.", "Name Error", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+
+            // The name should not contain any special characters, whitespace is allowed
+            if (!Character.isWhitespace(c)) {
+                if (!Character.isLetterOrDigit(c)) {
+                    JOptionPane.showMessageDialog(new JFrame(), "Name should not include any special characters", "Name Error", JOptionPane.WARNING_MESSAGE);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Array to check if every single character of the username is a letter
+    public boolean checkForLetter(char[] charArray) {
+        for (char c : charArray) {
+            if (!Character.isAlphabetic(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * main method to start the client side application
+     */
     public static void main(String[] args) {
         new LoginView();
     }
-
-
 }

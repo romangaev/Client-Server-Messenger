@@ -1,3 +1,4 @@
+package supplementary;
 
 import java.io.File;
 
@@ -9,7 +10,12 @@ import java.io.File;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-
+/**
+ * @author Roman Gaev
+ * supplementary.Message class represents message for client-server exchange
+ * <p>
+ * version 18.04.2018
+ */
 public class Message implements Serializable{
     private int command;
     private String[] content;

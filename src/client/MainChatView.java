@@ -1,3 +1,5 @@
+package client;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -11,62 +13,56 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Ioana, Ali, Nabeel
- * <p>
- * The View for the main chat window
+ * @author Roman Gaev, Ioana, Ali, Nabeel
+ *
+ * client.MainChatView is the second view for presenting actual chatbox after successful login.
+ *
+ * version 18.04.2018
  */
 
 public class MainChatView extends JPanel implements ActionListener {
 
     private ClientModel client;
-
+    //Left side (west) list with users and groups
     private DefaultListModel<ListEntry> usrListModel = new DefaultListModel();
     private JList<ListEntry> userList = new JList(usrListModel);
-
-
-    //private DefaultListModel<String> userListModel;
-   // private JList<String> userListUI;
     private ListSelectionModel listSelectionModel;
+    //Right side (east) list with messages
     private DefaultListModel<String> msgModel;
     private JList<String> msgList;
-    private JTextArea inputField;
+    //idNameGroups - map to find specific group conversation id for particular nickname
     private Map<String, Integer> idNameGroups;
+    private JTextArea inputField;
     private JButton groupButton;
     private JLabel conversationInfo = new JLabel(" ... ");
     private JButton sendButton;
+    //matches list - for storing message search matches
     private ArrayList<Integer> matches;
 
-    private ImageIcon offlineIcon =new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/offline.png");
-    private ImageIcon onlineIcon =new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/online.png");
-    private ImageIcon groupIcon =new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/group.png");
-    private ImageIcon noMessageIcon =new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/nomessage.png");
-    private ImageIcon messageIcon = new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/newmessage.png");
+    private ImageIcon offlineIcon =new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+ "/client/offline.png");
+    private ImageIcon onlineIcon =new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+ "/client/online.png");
+    private ImageIcon groupIcon =new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+ "/client/group.png");
+    private ImageIcon noMessageIcon =new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+ "/client/nomessage.png");
+    private ImageIcon messageIcon = new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+ "/client/newmessage.png");
 
 
     public MainChatView(ClientModel client) {
 
-        onlineIcon.setDescription("onlineIcon");
-        offlineIcon.setDescription("offlineIcon");
-        groupIcon.setDescription("GROUP");
-
-
-
         this.client = client;
         client.setView(this);
 
+        onlineIcon.setDescription("onlineIcon");
+        offlineIcon.setDescription("offlineIcon");
+        groupIcon.setDescription("GROUP");
         userList.setCellRenderer(new UserListCellRenderer());
-
 
         /**
          * WEST PANEL
          */
-        //userListModel = new DefaultListModel<>();
-        //userListUI = new JList<>(userListModel);
         JPanel west = new JPanel();
         west.setLayout(new BorderLayout());
         west.setBackground(Color.DARK_GRAY);
         west.add(new JScrollPane(userList), BorderLayout.CENTER);
-
 
         groupButton = new JButton("create group");
         groupButton.addActionListener(this);
@@ -81,7 +77,6 @@ public class MainChatView extends JPanel implements ActionListener {
         client.getAllUsers().forEach(
                 (key, value) -> {
                     if (value.getName().equals("private")) {
-
                         for (String member : value.getParticipants()) {
                             if (!member.equals(client.getLogin())) {
                                 idNameGroups.put(member, key);
@@ -98,13 +93,11 @@ public class MainChatView extends JPanel implements ActionListener {
                 }
         );
 
-        //listSelectionModel = userListUI.getSelectionModel();
         listSelectionModel = userList.getSelectionModel();
         listSelectionModel.addListSelectionListener(
                 new SharedListSelectionHandler());
         listSelectionModel.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
-        //userListUI.setSelectedIndex(0);
         userList.setSelectedIndex(0);
 
         /**
@@ -121,10 +114,6 @@ public class MainChatView extends JPanel implements ActionListener {
         ComponentListener l = new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-
-                // Next line possible if list is of type JXList
-                // list.invalidateCellSizeCache();
-                // for core: force cache invalidation by temporarily setting fixed height
                 msgList.setFixedCellHeight(10);
                 msgList.setFixedCellHeight(-1);
             }
@@ -152,13 +141,8 @@ public class MainChatView extends JPanel implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String text = inputField.getText();
-                //int groupId = idNameGroups.get(userListUI.getSelectedValue().split(" ", 2)[0]);
                 int groupId = idNameGroups.get(userList.getSelectedValue().getName());
-
                 text = text.trim();
-                // Checking if a line is empty after the first line
-                // text.trim allows for different messages to be written in different lines
-
                 if (!text.equals("") && !text.equals(" ")) {
                     client.sendMessage(groupId, text);
                     msgModel.addElement(client.getLogin() + ": " + text);
@@ -233,26 +217,21 @@ public class MainChatView extends JPanel implements ActionListener {
     }
 
 
+
     /**
      * LISTENER FOR GROUP CREATION BUTTON - CREATES NEW FRAME AND STUFF
      */
     public void actionPerformed(ActionEvent e) {
 
-
             JFrame innerframe = new JFrame("Create group");
             JPanel main = new JPanel();
             DefaultListModel<String> model = new DefaultListModel();
             JList users = new JList(model);
-            /*
-            for (int i = 0; i < userListModel.getSize(); i++) {
-                String s = userListModel.get(i);
-                if (isPerson(s))
-                    model.addElement(s);
-            }*/
+
             for (int i = 0; i < usrListModel.getSize(); i++) {
-                String s = usrListModel.get(i).getName();
-                if (isPerson(s))
-                model.addElement(s);
+                ListEntry entry = usrListModel.get(i);
+                if (isPerson(entry.getStatus().getDescription()))
+                model.addElement(entry.getName());
             }
 
             main.setLayout(new BorderLayout());
@@ -264,7 +243,6 @@ public class MainChatView extends JPanel implements ActionListener {
             panel.add(new JScrollPane(users), BorderLayout.CENTER);
             users.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-
             main.add(panel, BorderLayout.CENTER);
             main.add(nameGroup, BorderLayout.NORTH);
             main.add(submitButton, BorderLayout.SOUTH); // The listener of this will initiate the CreateGroup method
@@ -272,7 +250,6 @@ public class MainChatView extends JPanel implements ActionListener {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String name = nameGroup.getText();
-                   // if (!usrListModel.contains(name)) ;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     {
                         ArrayList<String> selected = new ArrayList<>();
                         users.getSelectedValuesList().forEach(x -> {
@@ -280,7 +257,6 @@ public class MainChatView extends JPanel implements ActionListener {
                             selected.add(changeName.split(" ")[0]);
                         });
                         selected.add(client.getLogin());
-
                         client.createGroup(name, selected);
                         innerframe.setVisible(false);
                     }
@@ -291,79 +267,7 @@ public class MainChatView extends JPanel implements ActionListener {
             innerframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
             innerframe.setVisible(true); // size is gonna be rearranged and all that random GUI
 
-
     }
-
-
-
-
-    /**
-     * SUPPORTIVE METHODS
-     */
-    public void updateRegister(int i, String s) {
-            usrListModel.addElement(new ListEntry(s, offlineIcon,null));
-            idNameGroups.put(s,i);
-
-    }
-    public void updateOnline(String s) {
-       // userListModel.set(userListModel.indexOf(s+" offlineIcon"),s+" onlineIcon");
-     usrListModel.get(usrListModel.indexOf(new ListEntry(s,null,null))).setStatus(onlineIcon);
-
-    }
-
-    public void updateOffline(String s) {
-        //userListModel.set(userListModel.indexOf(s+" onlineIcon"),s+" offlineIcon");
-        usrListModel.get(usrListModel.indexOf(new ListEntry(s,null,null))).setStatus(offlineIcon);
-
-    }
-
-    public void updateMessages(String sender,String conversation, String text) {
-        String chatBox;
-        if(conversation.equals("private")) chatBox=sender;
-        else chatBox=conversation;
-        if(chatBox.equals(userList.getSelectedValue().getName())){
-            msgModel.addElement(chatBox+": "+text);
-            matches=null;
-        } else {
-            //userListModel.set(userListModel.indexOf(login+" onlineIcon"),login+" onlineIcon O");
-            usrListModel.get(usrListModel.indexOf(new ListEntry(chatBox,null,null))).setIcon(messageIcon);
-
-        }
-    }
-
-    public void updateHistory(ArrayList<String> history) {
-       SwingUtilities.invokeLater(new Runnable() {
-           @Override
-           public void run() {
-               msgModel.removeAllElements();
-               for (String message : history) {
-                   msgModel.addElement(message);
-               }
-
-           }
-       });
-
-    }
-
-    public void updateGroups(String s, int i) {
-      //  userListModel.addElement(s);
-        usrListModel.addElement(new ListEntry(s, groupIcon,null));
-        idNameGroups.put(s, i);
-    }
-
-    public void deleteGroup(String groupName) {
-       // userListUI.setSelectedIndex((userListUI.getSelectedIndex()+1)%userListModel.getSize());
-        //userListModel.removeElement(groupName);
-        userList.setSelectedIndex((userList.getSelectedIndex()+1)% usrListModel.getSize());
-        usrListModel.removeElement(new ListEntry(groupName,null,null));
-        idNameGroups.remove(groupName);
-    }
-
-    public boolean isPerson(String s) {
-        return !s.equals("GROUP");
-    }
-
-
 
 
     /**
@@ -436,6 +340,107 @@ public class MainChatView extends JPanel implements ActionListener {
         }
     }
 
+
+
+    /**
+     * USER LIST RENDERER (NEED TO CHANGE THEIR LOOK AND FEEL)
+     */
+    class UserListCellRenderer implements ListCellRenderer
+    {
+        private JPanel p;
+        private JLabel messageLabel;
+        private JTextArea name;
+        private JLabel status;
+
+        public UserListCellRenderer(){
+            p=new JPanel();
+            messageLabel= new JLabel();
+            name=new JTextArea();
+            status=new JLabel();
+            p.setLayout(new BorderLayout());
+            p.add(messageLabel,BorderLayout.EAST);
+            p.add(name, BorderLayout.CENTER);
+            p.add(status, BorderLayout.WEST);
+            name.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            name.setFont(new Font("Rockwell", Font.BOLD, 12));
+            name.setForeground(Color.white);
+            name.setBackground(Color.DARK_GRAY);
+        }
+
+        public Component getListCellRendererComponent(JList list, Object value,
+                                                      int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
+            ListEntry entry = (ListEntry) value;
+
+            name.setText(entry.getName());
+            messageLabel.setIcon(entry.getIcon());
+            status.setIcon(entry.getStatus());
+
+            if (isSelected) {
+                name.setBackground(Color.GRAY);
+                p.setBackground(Color.GRAY);
+                p.setForeground(Color.GRAY);
+            }
+            else {
+                name.setBackground(Color.DARK_GRAY);
+                p.setBackground(Color.DARK_GRAY);
+                p.setForeground(Color.DARK_GRAY);
+            }
+
+            setEnabled(list.isEnabled());
+            setFont(list.getFont());
+            setOpaque(true);
+            EventQueue.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    repaint();
+                }
+            });
+
+            return p;
+        }
+    }
+
+
+
+    /**
+     * USER AND GROUP SELECTION LISTENER
+     */
+    class SharedListSelectionHandler implements ListSelectionListener {
+        public void valueChanged(ListSelectionEvent e) {
+
+                        try {
+                            if (e.getValueIsAdjusting()) return;
+                            if (userList.getSelectedValue() == null) userList.setSelectedIndex(0);
+                            ListEntry selectedValue = userList.getSelectedValue();
+                            if (selectedValue.getIcon() != null) selectedValue.setIcon(noMessageIcon);
+                            int groupId = idNameGroups.get(selectedValue.getName());
+
+                            client.getHistory(groupId);
+
+                            if(isPerson(selectedValue.getStatus().getDescription()))
+                                conversationInfo.setText("<html><div style='text-align: center;'>" + selectedValue + "</div></html>");
+                            else{
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("<html><div style='text-align: center;'>" + selectedValue + ": ");
+                                client.getAllUsers().get(idNameGroups.get(selectedValue.getName())).getParticipants().forEach(x -> sb.append(" " + x));
+                                conversationInfo.setText(sb.toString() + "</div></html>");
+                            }
+
+                            matches = null;
+                        }catch (IOException em){em.printStackTrace();}
+
+        }
+    }
+
+
+
+    /**
+     * ListEntry class for user list
+     */
     class ListEntry implements Comparable<ListEntry>
     {
         private String name;
@@ -486,99 +491,68 @@ public class MainChatView extends JPanel implements ActionListener {
             return false;
         }
     }
+
     /**
-     * USER LIST RENDERER (NEED TO CHANGE THEIR LOOK AND FEEL)
+     * SUPPORTIVE METHODS
      */
-    class UserListCellRenderer implements ListCellRenderer
-    {
-        private JPanel p;
-        private JLabel messageLabel;
-        private JTextArea name;
-        private JLabel status;
+    public void updateRegister(int i, String s) {
+        usrListModel.addElement(new ListEntry(s, offlineIcon,null));
+        idNameGroups.put(s,i);
+    }
 
-        public UserListCellRenderer(){
-            p=new JPanel();
-            messageLabel= new JLabel();
-            name=new JTextArea();
-            status=new JLabel();
-            p.setLayout(new BorderLayout());
-            p.add(messageLabel,BorderLayout.EAST);
-            p.add(name, BorderLayout.CENTER);
-            p.add(status, BorderLayout.WEST);
-            name.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    public void updateOnline(String s) {
+        // userListModel.set(userListModel.indexOf(s+" offlineIcon"),s+" onlineIcon");
+        usrListModel.get(usrListModel.indexOf(new ListEntry(s,null,null))).setStatus(onlineIcon);
+    }
 
-            name.setFont(new Font("Rockwell", Font.BOLD, 12));
-            name.setForeground(Color.white);
-            name.setBackground(Color.DARK_GRAY);
+    public void updateOffline(String s) {
+        //userListModel.set(userListModel.indexOf(s+" onlineIcon"),s+" offlineIcon");
+        usrListModel.get(usrListModel.indexOf(new ListEntry(s,null,null))).setStatus(offlineIcon);
+    }
+
+    public void updateMessages(String sender,String conversation, String text) {
+        String chatBox;
+        if(conversation.equals("private")) chatBox=sender;
+        else chatBox=conversation;
+        if(chatBox.equals(userList.getSelectedValue().getName())){
+            msgModel.addElement(chatBox+": "+text);
+            matches=null;
+        } else {
+            //userListModel.set(userListModel.indexOf(login+" onlineIcon"),login+" onlineIcon O");
+            usrListModel.get(usrListModel.indexOf(new ListEntry(chatBox,null,null))).setIcon(messageIcon);
         }
+    }
 
-        public Component getListCellRendererComponent(JList list, Object value,
-                                                      int index, boolean isSelected,
-                                                      boolean cellHasFocus) {
-            ListEntry entry = (ListEntry) value;
-
-            name.setText(entry.getName());
-            messageLabel.setIcon(entry.getIcon());
-            status.setIcon(entry.getStatus());
-
-
-            if (isSelected) {
-                name.setBackground(Color.GRAY);
-                p.setBackground(Color.GRAY);
-                p.setForeground(Color.GRAY);
-            }
-            else {
-                name.setBackground(Color.DARK_GRAY);
-                p.setBackground(Color.DARK_GRAY);
-                p.setForeground(Color.DARK_GRAY);
-            }
-
-            setEnabled(list.isEnabled());
-            setFont(list.getFont());
-            setOpaque(true);
-            EventQueue.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    repaint();
+    public void updateHistory(ArrayList<String> history) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                msgModel.removeAllElements();
+                for (String message : history) {
+                    msgModel.addElement(message);
                 }
-            });
+            }
+        });
 
-            return p;
-        }
     }
 
-    /**
-     * USER AND GROUP SELECTION LISTENER
-     */
-    class SharedListSelectionHandler implements ListSelectionListener {
-        public void valueChanged(ListSelectionEvent e) {
-
-                        try {
-                            if (e.getValueIsAdjusting()) return;
-                            if (userList.getSelectedValue() == null) userList.setSelectedIndex(0);
-                            ListEntry selectedValue = userList.getSelectedValue();
-                            if (selectedValue.getIcon() != null) selectedValue.setIcon(noMessageIcon);
-                            int groupId = idNameGroups.get(selectedValue.getName());
-
-                            client.getHistory(groupId);
-
-                            if(isPerson(selectedValue.getStatus().getDescription()))
-                                conversationInfo.setText("<html><div style='text-align: center;'>" + selectedValue + "</div></html>");
-                            else{
-                                StringBuilder sb = new StringBuilder();
-                                sb.append("<html><div style='text-align: center;'>" + selectedValue + ": ");
-                                client.getAllUsers().get(idNameGroups.get(selectedValue.getName())).getParticipants().forEach(x -> sb.append(" " + x));
-                                conversationInfo.setText(sb.toString() + "</div></html>");
-                            }
-
-                            matches = null;
-                        }catch (IOException em){em.printStackTrace();}
-
-        }
+    public void updateGroups(String s, int i) {
+        //  userListModel.addElement(s);
+        usrListModel.addElement(new ListEntry(s, groupIcon,null));
+        idNameGroups.put(s, i);
     }
 
+    public void deleteGroup(String groupName) {
+        // userListUI.setSelectedIndex((userListUI.getSelectedIndex()+1)%userListModel.getSize());
+        //userListModel.removeElement(groupName);
+        userList.setSelectedIndex((userList.getSelectedIndex()+1)% usrListModel.getSize());
+        usrListModel.removeElement(new ListEntry(groupName,null,null));
+        idNameGroups.remove(groupName);
+    }
+
+    public boolean isPerson(String s) {
+        return !s.equals("GROUP");
+    }
 
     /**
      * STUFF FOR POP UP MENU  (LEAVE GROUP, RIGHT CLICK)

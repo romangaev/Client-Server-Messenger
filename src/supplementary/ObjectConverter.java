@@ -1,5 +1,13 @@
-import java.io.*;
+package supplementary;
 
+import java.io.*;
+/**
+ * @author Roman Gaev
+ *
+ * supplementary.ObjectConverter class to convert files to database format
+ * <p>
+ * version 18.04.2018
+ */
 public class ObjectConverter {
 
         //converting SimpleExample object to byte[].
