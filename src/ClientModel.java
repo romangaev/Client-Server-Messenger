@@ -101,8 +101,8 @@ public class ClientModel {
                                 case Protocol.MESSAGE:
                                     System.out.println("client got message");
                                     String loginToPrint=tokens[0];
-                                    if(loginToPrint.equals(login)) loginToPrint="You";
-                                    if(view!=null){view.updateMessages(loginToPrint,tokens[2]);}
+                                   // if(loginToPrint.equals(login)) loginToPrint="You";
+                                    if(view!=null){view.updateMessages(loginToPrint,allUsers.get(Integer.valueOf(tokens[1])).getName(),tokens[2]);}
                                     break;
                                 case Protocol.HISTORY:
                                     ArrayList<String> messages =(ArrayList<String>)ois.readObject();

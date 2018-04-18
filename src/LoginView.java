@@ -92,7 +92,10 @@ public class LoginView extends JFrame {
 
     public LoginView() {
 
-        /*super("Login/Sign up");
+        super("Login/Sign up");
+        UIManager.put("nimbusBase", Color.DARK_GRAY);
+        UIManager.put("nimbusBlueGrey", Color.LIGHT_GRAY);
+        UIManager.put("control", Color.DARK_GRAY);
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -103,7 +106,6 @@ public class LoginView extends JFrame {
         } catch (Exception e) {
             // If Nimbus is not available, you can set the GUI to another look and feel.
         }
-        */
 
         //Set up client
         client = new ClientModel(ip, port);
@@ -117,7 +119,7 @@ public class LoginView extends JFrame {
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBackground(Color.white);
+        mainPanel.setBackground(Color.DARK_GRAY);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 50, 30));
         mainPanel.add(cardsPanel);
         setLayout(new BorderLayout());
@@ -133,10 +135,10 @@ public class LoginView extends JFrame {
     public JPanel buildLogPanel() {
         JPanel logPanel = new JPanel();
         logPanel.setLayout(new BoxLayout(logPanel, BoxLayout.Y_AXIS));
-        logPanel.setBackground(Color.white);
+        logPanel.setBackground(Color.DARK_GRAY);
 
         //JLabel welcomeLabel = new JLabel("<html>Welcome to<br> Messenger!</html>", SwingConstants.CENTER);
-        JLabel welcomeLabel = new JLabel(new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/logo.png"));
+        JLabel welcomeLabel = new JLabel(new ImageIcon(LoginView.class.getProtectionDomain().getCodeSource().getLocation().getPath()+"/logo2.png"));
         //welcomeLabel.setFont(titleFont); // set the font
         //welcomeLabel.setForeground(Color.GRAY); // set the color
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -148,21 +150,24 @@ public class LoginView extends JFrame {
         passwordField = new JPasswordField();
         passwordField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton loginButton = new JButton("   Login   ");
+        JButton loginButton = new JButton("   Log in   ");
+        loginButton.setFont(new Font("Rockwell", Font.PLAIN, 15));
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton registerButton = new JButton("Register");
+        JButton registerButton = new JButton(" Register ");
         registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        registerButton.setFont(new Font("Rockwell", Font.PLAIN, 15));
 
-        JButton connectButton = new JButton("Connect");
+        JButton connectButton = new JButton(" Connect ");
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        connectButton.setFont(new Font("Rockwell", Font.PLAIN, 15));
 
         logPanel.add(welcomeLabel);
         logPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         logPanel.add(loginField);
         logPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         logPanel.add(passwordField);
-        logPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        logPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         logPanel.add(loginButton);
         logPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         logPanel.add(registerButton);
