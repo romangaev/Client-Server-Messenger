@@ -44,8 +44,8 @@ public class ServerModel extends Thread {
         // Establishing database connection
         String url = "jdbc:postgresql://localhost:5432/chatdb";
         Properties props = new Properties();
-        props.setProperty("user", "postgres");
-        props.setProperty("password", "iha492081");
+        props.setProperty("user", "");
+        props.setProperty("password", "");
         props.setProperty("ssl", "false");
         try {
             Connection dbConnection = DriverManager.getConnection(url, props);
