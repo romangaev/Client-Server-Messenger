@@ -15,6 +15,6 @@ The project is implemented in client-server architecture with use of Java SE, Ja
 
 
 
-Screens:
+## Screens:
 ![Alt text](/screenshot_1.jpg)
 ![Alt text](/screenshot_2.jpg)
